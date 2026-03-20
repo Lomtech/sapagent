@@ -851,7 +851,7 @@
         }
 
         function saveCfg() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); } catch (e) { }
         }
 
         const saved = loadCfg();
@@ -861,7 +861,8 @@
             sapHost: saved.sapHost || '',
             sapClient: saved.sapClient || '',
             sapUser: saved.sapUser || '',
-            sapPass: saved.sapPass || ''
+            sapPass: saved.sapPass || '',
+            batchEntity: saved.batchEntity || ''
         };
 
         let csvData = [];
@@ -873,23 +874,37 @@
         const sendBtn = document.getElementById('sendBtn');
         const welcomeMsg = document.getElementById('welcomeMsg');
 
-        /* ─── Restore fields from storage ─── */
+        /* ─── Restore ALL fields from storage on load ─── */
         function restoreFields() {
-            if (cfg.openaiKey) {
-                document.getElementById('openaiKey').value = cfg.openaiKey;
-                document.getElementById('modelSelect').value = cfg.model;
-                setStatus('dotOpenAI', 'lblOpenAI', 'ok', 'OpenAI ✓');
-            }
-            if (cfg.sapHost) {
-                document.getElementById('sapHost').value = cfg.sapHost;
-                document.getElementById('sapClient').value = cfg.sapClient;
-                document.getElementById('sapUser').value = cfg.sapUser;
-                document.getElementById('sapPassword').value = cfg.sapPass;
-                setStatus('dotSAP', 'lblSAP', 'warn', 'SAP gespeichert');
-            }
+            document.getElementById('openaiKey').value = cfg.openaiKey;
+            document.getElementById('modelSelect').value = cfg.model;
+            document.getElementById('sapHost').value = cfg.sapHost;
+            document.getElementById('sapClient').value = cfg.sapClient;
+            document.getElementById('sapUser').value = cfg.sapUser;
+            document.getElementById('sapPassword').value = cfg.sapPass;
+            document.getElementById('batchEntity').value = cfg.batchEntity;
+
+            if (cfg.openaiKey) setStatus('dotOpenAI', 'lblOpenAI', 'ok', 'OpenAI ✓');
+            if (cfg.sapHost || cfg.sapUser) setStatus('dotSAP', 'lblSAP', 'warn', 'SAP gespeichert');
         }
 
         restoreFields();
+
+        /* ─── Auto-save on every keystroke for all config fields ─── */
+        const fieldMap = {
+            'openaiKey': () => { cfg.openaiKey = document.getElementById('openaiKey').value; },
+            'modelSelect': () => { cfg.model = document.getElementById('modelSelect').value; },
+            'sapHost': () => { cfg.sapHost = document.getElementById('sapHost').value.trim().replace(/\/$/, ''); },
+            'sapClient': () => { cfg.sapClient = document.getElementById('sapClient').value.trim(); },
+            'sapUser': () => { cfg.sapUser = document.getElementById('sapUser').value.trim(); },
+            'sapPassword': () => { cfg.sapPass = document.getElementById('sapPassword').value; },
+            'batchEntity': () => { cfg.batchEntity = document.getElementById('batchEntity').value.trim(); },
+        };
+
+        Object.entries(fieldMap).forEach(([id, fn]) => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', () => { fn(); saveCfg(); });
+        });
 
         /* ─── Auto-resize textarea ─── */
         chatInput.addEventListener('input', () => {
@@ -903,29 +918,26 @@
 
         sendBtn.addEventListener('click', handleSend);
 
-        /* ─── Save OpenAI ─── */
+        /* ─── Save OpenAI (fields auto-saved on input; button confirms) ─── */
         document.getElementById('saveOpenAI').addEventListener('click', () => {
-            cfg.openaiKey = document.getElementById('openaiKey').value.trim();
-            cfg.model = document.getElementById('modelSelect').value;
+            saveCfg();
             if (cfg.openaiKey) {
                 setStatus('dotOpenAI', 'lblOpenAI', 'ok', 'OpenAI ✓');
-                saveCfg();
-                appendSystemMsg('✅ OpenAI API Key gespeichert und im Browser hinterlegt.', 'success');
+                appendSystemMsg('✅ OpenAI API Key gespeichert — wird beim nächsten Öffnen automatisch geladen.', 'success');
             } else {
                 setStatus('dotOpenAI', 'lblOpenAI', '', 'OpenAI —');
+                appendSystemMsg('⚠️ Kein OpenAI Key eingegeben.', 'warn');
             }
         });
 
-        /* ─── Save SAP ─── */
+        /* ─── Save SAP (fields auto-saved on input; button confirms) ─── */
         document.getElementById('saveSAP').addEventListener('click', () => {
-            cfg.sapHost = document.getElementById('sapHost').value.trim().replace(/\/$/, '');
-            cfg.sapClient = document.getElementById('sapClient').value.trim();
-            cfg.sapUser = document.getElementById('sapUser').value.trim();
-            cfg.sapPass = document.getElementById('sapPassword').value.trim();
-            if (cfg.sapHost && cfg.sapUser) {
+            saveCfg();
+            if (cfg.sapHost || cfg.sapUser) {
                 setStatus('dotSAP', 'lblSAP', 'warn', 'SAP gespeichert');
-                saveCfg();
-                appendSystemMsg(`✅ SAP-Verbindung gespeichert und im Browser hinterlegt: <b>${cfg.sapHost}</b>`, 'success');
+                appendSystemMsg(`✅ SAP-Verbindung gespeichert — wird beim nächsten Öffnen automatisch geladen.<br><b>Host:</b> ${cfg.sapHost || '—'} &nbsp;<b>User:</b> ${cfg.sapUser || '—'}`, 'success');
+            } else {
+                appendSystemMsg('⚠️ Bitte mindestens Host oder Benutzer angeben.', 'warn');
             }
         });
 
