@@ -1618,6 +1618,13 @@
         /* ═══ CSRF ═══ */
         g('csrfBtn').addEventListener('click', () => fetchCsrf(true));
         async function fetchCsrf(manual = false) {
+            /* X-CSRF-Token: Fetch is a custom header → triggers CORS preflight.
+               Only attempt when proxy is active (proxy adds CORS headers).
+               Without proxy, write operations may fail — use proxy.js for CRUD. */
+            if (!cfg.proxy) {
+                if (manual) toast('CSRF nur mit aktivem Proxy verfügbar (CORS)', 'err');
+                return;
+            }
             const svc = curSvc || (cfg.queries[0] || '').split('/')[0];
             if (!baseUrl() || !svc) { if (manual) toast('Host & Service benötigt', 'err'); return; }
             const url = baseUrl() + '/sap/opu/odata/sap/' + svc + '/?$format=json' + authP(true);
@@ -1672,7 +1679,7 @@
             const sep = raw.includes('?') ? '&' : '?';
             const url = baseUrl() + '/sap/opu/odata/sap/' + raw + sep + '$format=json' + authP(true);
             showLoad(url);
-            fetchCsrf();
+            if (cfg.proxy) fetchCsrf();   /* only with proxy — custom header triggers CORS otherwise */
             try {
                 const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
                 const txt = await res.text();
