@@ -643,6 +643,46 @@
             width: 0%;
         }
 
+
+        /* ── Result Table ── */
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .result-table th {
+            background: var(--accent);
+            color: white;
+            padding: 7px 12px;
+            text-align: left;
+            font-family: 'Syne', sans-serif;
+            font-size: 11px;
+            letter-spacing: .4px;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+        }
+
+        .result-table td {
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-1);
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .result-table tr:nth-child(even) td {
+            background: var(--surface-2);
+        }
+
+        .result-table tr:hover td {
+            background: var(--accent-dim);
+        }
+
         /* ── Scrollbar ── */
         ::-webkit-scrollbar {
             width: 6px;
@@ -810,15 +850,16 @@
                     <p>Beschreibe dein Anliegen in natürlicher Sprache — der Agent extrahiert die Daten und ruft die
                         OData-API auf.</p>
                     <div class="quick-actions">
-                        <button class="quick-btn" onclick="insertPrompt('Lege 5 FX Forward Trades mit EUR/USD an')">🔁
-                            FX Forwards anlegen</button>
-                        <button class="quick-btn" onclick="insertPrompt('Lese alle offenen Trades aus /TradeSet')">📋
-                            Trades abfragen</button>
+                        <button class="quick-btn" onclick="insertPrompt('Zeige mir alle FX Exposures')">📋 Alle
+                            Exposures anzeigen</button>
                         <button class="quick-btn"
-                            onclick="insertPrompt('Aktualisiere die Gegenpartei von Trade 1001 auf BP00042')">✏️ Trade
-                            aktualisieren</button>
-                        <button class="quick-btn" onclick="insertPrompt('Lösche Trade 9999 aus dem System')">🗑️ Trade
-                            löschen</button>
+                            onclick="insertPrompt('Lege eine neue FX Exposure an: CompanyCode 1000, RiskCurrency EUR, TargetCurrency USD, Amount 500000, Direction Inflow, ValidFrom 2025-01-01, DueDate 2025-12-31, ExposureType FXFWD')">➕
+                            FX Exposure anlegen</button>
+                        <button class="quick-btn"
+                            onclick="insertPrompt('Zeige alle FX Exposures mit CompanyCode 1000')">🔍 Nach CompanyCode
+                            filtern</button>
+                        <button class="quick-btn" onclick="insertPrompt('Zeige mir alle TRM Trades')">📊 TRM Trades
+                            abfragen</button>
                     </div>
                 </div>
             </div>
@@ -994,7 +1035,7 @@
                 const rec = csvData[i];
                 bar.style.width = Math.round(((i + 1) / csvData.length) * 100) + '%';
                 try {
-                    const res = await odataPost(`/sap/opu/odata/sap/${entity}`, rec);
+                    const res = await odataCall(`/sap/opu/odata/sap/${entity}`, 'POST', rec, null);
                     ok++;
                 } catch (err) {
                     fail++;
@@ -1047,25 +1088,22 @@
         `);
 
                     /* 2. OData Call */
-                    if (data && data.length) {
-                        for (const rec of data) {
-                            const path = `/sap/opu/odata/sap/${entity}`;
-                            try {
-                                const result = await odataPost(path, rec);
-                                appendBotMsg(`
-                <span class="tag tag-success">✓ Response</span>
-                <div class="code-block" style="margin-top:8px">
-                  <div class="code-header">
-                    <span class="code-label">API Response</span>
-                    <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
-                  </div>
-                  <div>${escHtml(JSON.stringify(result, null, 2))}</div>
-                </div>
-              `);
-                            } catch (err) {
-                                appendBotMsg(`<span class="tag tag-error">❌ Fehler</span> ${escHtml(err.message)}`);
+                    const path = `/sap/opu/odata/sap/${entity}`;
+                    try {
+                        if (method === 'GET') {
+                            const result = await odataCall(path, 'GET', null, filter);
+                            appendBotMsg(renderResult(result));
+                        } else if (data && data.length) {
+                            for (const rec of data) {
+                                const result = await odataCall(path, method || 'POST', rec, null);
+                                appendBotMsg(renderResult(result));
                             }
+                        } else {
+                            const result = await odataCall(path, method || 'POST', null, null);
+                            appendBotMsg(renderResult(result));
                         }
+                    } catch (err) {
+                        appendBotMsg(`<span class="tag tag-error">❌ Fehler</span> ${escHtml(err.message)}`);
                     }
 
                 } else {
@@ -1139,19 +1177,74 @@
         }
 
         /* ─── OData POST ─── */
-        async function odataPost(path, data) {
-            const params = cfg.sapClient ? `?sap-client=${cfg.sapClient}` : '';
-            const res = await fetch(`${cfg.sapHost}${path}${params}`, {
-                method: 'POST',
+        async function odataCall(path, method, data, filter) {
+            let url = `${cfg.sapHost}${path}`;
+            const params = new URLSearchParams();
+            if (cfg.sapClient) params.set('sap-client', cfg.sapClient);
+            params.set('$format', 'json');
+            if (method === 'GET' && filter) params.set('$filter', filter);
+            url += '?' + params.toString();
+
+            const opts = {
+                method,
                 headers: {
-                    'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'Authorization': 'Basic ' + btoa(`${cfg.sapUser}:${cfg.sapPass}`)
-                },
-                body: JSON.stringify(data)
-            });
+                }
+            };
+            if (method !== 'GET' && data) {
+                opts.headers['Content-Type'] = 'application/json';
+                opts.body = JSON.stringify(data);
+            }
+            const res = await fetch(url, opts);
+            if (!res.ok) {
+                const errText = await res.text().catch(() => '');
+                throw new Error(`HTTP ${res.status} – ${errText.slice(0, 200)}`);
+            }
             const text = await res.text();
             return text ? JSON.parse(text) : { status: res.status };
+        }
+
+        /* ─── Render result as table if array, else code block ─── */
+        function renderResult(result) {
+            // Extract array from OData response envelope
+            let rows = null;
+            if (result?.d?.results && Array.isArray(result.d.results)) {
+                rows = result.d.results;
+            } else if (Array.isArray(result?.value)) {
+                rows = result.value;
+            } else if (result?.d && !Array.isArray(result.d)) {
+                rows = [result.d]; // single entity
+            }
+
+            if (rows && rows.length > 0) {
+                const cols = Object.keys(rows[0]).filter(k => k !== '__metadata');
+                const header = cols.map(c => `<th>${escHtml(c)}</th>`).join('');
+                const bodyRows = rows.map(row =>
+                    `<tr>${cols.map(c => `<td>${escHtml(String(row[c] ?? ''))}</td>`).join('')}</tr>`
+                ).join('');
+                return `
+        <div style="margin-top:8px">
+          <span class="tag tag-success">✓ ${rows.length} Datensätze</span>
+        </div>
+        <div style="overflow-x:auto;margin-top:8px">
+          <table class="result-table">
+            <thead><tr>${header}</tr></thead>
+            <tbody>${bodyRows}</tbody>
+          </table>
+        </div>`;
+            }
+
+            // Fallback: code block
+            return `
+      <span class="tag tag-success">✓ Response</span>
+      <div class="code-block" style="margin-top:8px">
+        <div class="code-header">
+          <span class="code-label">API Response</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+        </div>
+        <div>${escHtml(JSON.stringify(result, null, 2))}</div>
+      </div>`;
         }
 
         /* ─── CSV Parser ─── */
