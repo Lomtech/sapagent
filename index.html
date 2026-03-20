@@ -1141,11 +1141,13 @@
         /* ─── ODATA ─── */
         async function odataCall(entityPath, method, data, filter) {
             const base = cfg.sapHost.replace(/\/$/, '');
-            const params = new URLSearchParams({ '$format': 'json' });
-            if (cfg.sapClient) params.set('sap-client', cfg.sapClient);
-            if (method === 'GET' && filter) params.set('$filter', filter);
 
-            const url = base + '/sap/opu/odata/sap/' + entityPath + '?' + params.toString();
+            /* Build query string manually — URLSearchParams encodes '$' to '%24' which SAP rejects */
+            const qparts = ['$format=json'];
+            if (cfg.sapClient) qparts.push('sap-client=' + encodeURIComponent(cfg.sapClient));
+            if (method === 'GET' && filter) qparts.push('$filter=' + encodeURIComponent(filter));
+
+            const url = base + '/sap/opu/odata/sap/' + entityPath + '?' + qparts.join('&');
 
             const headers = {
                 'Accept': 'application/json',
