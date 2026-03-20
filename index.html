@@ -1595,10 +1595,10 @@
 
         /* ═══ AUTH PARAMS — Credentials in URL, kein Authorization-Header → kein CORS-Preflight ═══ */
         function authP(leadAmp = false) {
+            /* Only sap-client in URL. Credentials via browser session cookie (auto-sent).
+               sap-user/sap-password URL params cause login failure on most SAP systems. */
             let p = '';
             if (cfg.client) p += '&sap-client=' + enc(cfg.client);
-            if (cfg.user) p += '&sap-user=' + enc(cfg.user);
-            if (cfg.pass) p += '&sap-password=' + enc(cfg.pass);
             return leadAmp ? p : p.replace(/^&/, '');
         }
 
@@ -1610,7 +1610,7 @@
             setDot('dotSAP', 'lblSAP', 'warn', 'Teste…');
             try {
                 const url = baseUrl() + '/sap/opu/odata/sap/?$format=json' + authP(true);
-                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                const res = await fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'include' });
                 setDot('dotSAP', 'lblSAP', res.ok || res.status === 401 ? 'ok' : 'warn', (cfg.proxy ? 'Proxy · ' : '') + 'HTTP ' + res.status);
             } catch (e) { setDot('dotSAP', 'lblSAP', '', 'Fehler'); }
         });
