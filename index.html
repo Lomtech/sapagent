@@ -8,26 +8,27 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
-            --bg: #F4F4F8;
+            --bg: #F2F2F7;
             --s1: #FFFFFF;
-            --s2: #F8F8FB;
+            --s2: #F9F9FB;
             --s3: #EFF0F5;
-            --border: #E2E3EC;
-            --border2: #C8CAD8;
-            --accent: #2563EB;
-            --a2: #3B82F6;
-            --adim: rgba(37, 99, 235, .08);
-            --adark: #1D4ED8;
-            --t1: #111827;
-            --t2: #6B7280;
-            --t3: #9CA3AF;
-            --green: #16A34A;
-            --red: #DC2626;
-            --yellow: #D97706;
-            --r: 10px;
-            --rs: 7px;
+            --border: #E0E0E8;
+            --accent: #0A84FF;
+            --adim: rgba(10, 132, 255, .09);
+            --adark: #006FD6;
+            --t1: #1C1C1E;
+            --t2: #6E6E73;
+            --t3: #AEAEB2;
+            --green: #30D158;
+            --gdim: rgba(48, 209, 88, .12);
+            --red: #FF453A;
+            --rdim: rgba(255, 69, 58, .12);
+            --yellow: #FF9F0A;
+            --r: 12px;
+            --rs: 8px;
             --sh: 0 1px 3px rgba(0, 0, 0, .06), 0 4px 12px rgba(0, 0, 0, .04);
         }
 
@@ -54,7 +55,7 @@
             overflow: hidden;
         }
 
-        /* HEADER */
+        /* ── HEADER ── */
         header {
             height: 52px;
             border-bottom: 1px solid var(--border);
@@ -65,21 +66,20 @@
             flex-shrink: 0;
             background: var(--s1);
             box-shadow: var(--sh);
-            position: relative;
             z-index: 10;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 9px;
         }
 
         .logo-mark {
             width: 28px;
             height: 28px;
             border-radius: 7px;
-            background: linear-gradient(135deg, var(--accent), var(--a2));
+            background: linear-gradient(135deg, var(--accent), #60A5FA);
             display: grid;
             place-items: center;
         }
@@ -96,17 +96,15 @@
             font-size: 14px;
             font-weight: 700;
             letter-spacing: -.3px;
-            color: var(--t1);
         }
 
         .logo-name span {
             color: var(--accent);
         }
 
-        .header-right {
+        .pills {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .pill {
@@ -132,23 +130,23 @@
 
         .dot.ok {
             background: var(--green);
-            box-shadow: 0 0 0 3px rgba(22, 163, 74, .15);
+            box-shadow: 0 0 0 3px rgba(48, 209, 88, .15);
         }
 
         .dot.warn {
             background: var(--yellow);
         }
 
-        /* LAYOUT */
+        /* ── APP ── */
         .app {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
 
-        /* SIDEBAR */
+        /* ── SIDEBAR ── */
         aside {
-            width: 256px;
+            width: 252px;
             flex-shrink: 0;
             background: var(--s1);
             border-right: 1px solid var(--border);
@@ -157,16 +155,16 @@
             overflow-y: auto;
         }
 
-        .sb-section {
-            padding: 16px;
+        .sb {
+            padding: 14px;
             border-bottom: 1px solid var(--border);
         }
 
-        .sb-section.flex1 {
+        .sb.grow {
             flex: 1;
         }
 
-        .sb-label {
+        .sb-lbl {
             font-size: 9px;
             font-weight: 700;
             letter-spacing: 1.2px;
@@ -178,7 +176,7 @@
             gap: 6px;
         }
 
-        .sb-label::after {
+        .sb-lbl::after {
             content: '';
             flex: 1;
             height: 1px;
@@ -268,21 +266,27 @@
 
         .sbtn-g:hover {
             background: var(--s2);
-            color: var(--t1);
         }
 
-        /* query history */
-        .query-hist {
+        .csrf-status {
+            font-size: 10px;
+            color: var(--t3);
+            margin-top: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            word-break: break-all;
+        }
+
+        /* history */
+        .hist {
             display: flex;
             flex-direction: column;
             gap: 4px;
-            margin-top: 4px;
         }
 
-        .hist-item {
+        .hitem {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             background: var(--s2);
             border: 1px solid var(--border);
             border-radius: 6px;
@@ -291,12 +295,12 @@
             transition: all .15s;
         }
 
-        .hist-item:hover {
+        .hitem:hover {
             border-color: var(--accent);
             background: var(--adim);
         }
 
-        .hist-q {
+        .hq {
             font-family: 'JetBrains Mono', monospace;
             font-size: 10px;
             color: var(--t2);
@@ -304,14 +308,13 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             flex: 1;
-            transition: color .15s;
         }
 
-        .hist-item:hover .hist-q {
+        .hitem:hover .hq {
             color: var(--accent);
         }
 
-        .hist-del {
+        .hdel {
             flex-shrink: 0;
             width: 14px;
             height: 14px;
@@ -327,16 +330,16 @@
             transition: all .15s;
         }
 
-        .hist-item:hover .hist-del {
+        .hitem:hover .hdel {
             display: flex;
         }
 
-        .hist-del:hover {
+        .hdel:hover {
             background: var(--red);
             color: white;
         }
 
-        /* MAIN */
+        /* ── MAIN ── */
         .main {
             flex: 1;
             display: flex;
@@ -344,7 +347,7 @@
             overflow: hidden;
         }
 
-        /* TABS */
+        /* ── TABS ── */
         .tabs {
             display: flex;
             border-bottom: 1px solid var(--border);
@@ -377,7 +380,7 @@
             border-bottom-color: var(--accent);
         }
 
-        .tab-icon {
+        .ticon {
             width: 13px;
             height: 13px;
             fill: none;
@@ -385,7 +388,7 @@
             stroke-width: 2;
         }
 
-        /* PANELS */
+        /* ── PANELS ── */
         .panel {
             display: none;
             flex: 1;
@@ -397,8 +400,8 @@
             display: flex;
         }
 
-        /* ── QUERY PANEL ── */
-        .query-panel {
+        /* ═══ QUERY PANEL ═══ */
+        .qpanel {
             padding: 20px;
             display: flex;
             flex-direction: column;
@@ -415,21 +418,37 @@
             box-shadow: var(--sh);
         }
 
-        .qbar-label {
+        .qbar-lbl {
             font-size: 9px;
             font-weight: 700;
             letter-spacing: 1px;
             text-transform: uppercase;
             color: var(--t3);
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .qbar-row {
+        .proxy-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 20px;
+            background: var(--adim);
+            color: var(--accent);
+            border: 1px solid rgba(10, 132, 255, .2);
+        }
+
+        .qrow {
             display: flex;
             gap: 8px;
         }
 
-        .qbar-input {
+        .qinput {
             flex: 1;
             background: var(--s2);
             border: 1px solid var(--border);
@@ -442,12 +461,12 @@
             transition: border-color .15s, box-shadow .15s;
         }
 
-        .qbar-input:focus {
+        .qinput:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 2px var(--adim);
         }
 
-        .qbar-input::placeholder {
+        .qinput::placeholder {
             color: var(--t3);
             font-family: 'Space Grotesk', sans-serif;
             font-size: 12px;
@@ -479,19 +498,14 @@
             transform: scale(.97);
         }
 
-        .run-btn:disabled {
-            background: var(--border);
-            cursor: not-allowed;
-        }
-
         .run-btn svg {
             fill: white;
             width: 12px;
             height: 12px;
         }
 
-        /* RESULT BOX */
-        .result-box {
+        /* result */
+        .rbox {
             background: var(--s1);
             border: 1px solid var(--border);
             border-radius: var(--r);
@@ -503,11 +517,11 @@
             box-shadow: var(--sh);
         }
 
-        .result-box.show {
+        .rbox.show {
             display: flex;
         }
 
-        .result-head {
+        .rhead {
             padding: 10px 16px;
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -517,10 +531,17 @@
             background: var(--s2);
         }
 
-        .result-meta {
+        .rmeta {
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .ractions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .rtag {
@@ -532,12 +553,12 @@
         }
 
         .rtag-ok {
-            background: rgba(22, 163, 74, .12);
+            background: var(--gdim);
             color: #15803D;
         }
 
         .rtag-err {
-            background: rgba(220, 38, 38, .10);
+            background: var(--rdim);
             color: #DC2626;
         }
 
@@ -546,11 +567,11 @@
             color: var(--accent);
         }
 
-        .result-url {
+        .rurl {
             font-family: 'JetBrains Mono', monospace;
             font-size: 10px;
             color: var(--t3);
-            max-width: 580px;
+            max-width: 480px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -590,6 +611,11 @@
             border-right: none;
         }
 
+        th.acol {
+            background: var(--adark);
+            width: 80px;
+        }
+
         td {
             padding: 7px 14px;
             border-bottom: 1px solid var(--border);
@@ -601,11 +627,6 @@
             text-overflow: ellipsis;
         }
 
-        tr:hover td {
-            background: var(--adim);
-            color: var(--t1);
-        }
-
         tr:last-child td {
             border-bottom: none;
         }
@@ -614,8 +635,96 @@
             background: var(--s2);
         }
 
-        tr:nth-child(even):hover td {
+        tr:hover td {
             background: var(--adim);
+            color: var(--t1);
+        }
+
+        td.acell {
+            padding: 4px 8px;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        tr:hover td.acell {
+            background: var(--adim);
+        }
+
+        .rbtn {
+            height: 24px;
+            padding: 0 8px;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+            background: var(--s1);
+            cursor: pointer;
+            font-size: 11px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            transition: all .15s;
+        }
+
+        .rbtn.edit {
+            color: var(--accent);
+        }
+
+        .rbtn.edit:hover {
+            background: var(--adim);
+            border-color: var(--accent);
+        }
+
+        .rbtn.del {
+            color: var(--red);
+        }
+
+        .rbtn.del:hover {
+            background: var(--rdim);
+            border-color: var(--red);
+        }
+
+        .icon-btn {
+            height: 30px;
+            padding: 0 12px;
+            border-radius: var(--rs);
+            border: 1px solid var(--border);
+            background: var(--s1);
+            cursor: pointer;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--t2);
+            transition: all .15s;
+            white-space: nowrap;
+        }
+
+        .icon-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--adim);
+        }
+
+        .icon-btn.grn {
+            color: #15803D;
+            border-color: rgba(48, 209, 88, .3);
+        }
+
+        .icon-btn.grn:hover {
+            background: var(--gdim);
+            border-color: var(--green);
+        }
+
+        .icon-btn svg {
+            width: 11px;
+            height: 11px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.5;
         }
 
         .raw-out {
@@ -654,14 +763,7 @@
             }
         }
 
-        /* ── AGENT PANEL ── */
-        .agent-panel {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            overflow: hidden;
-        }
-
+        /* ═══ AGENT PANEL ═══ */
         .chat-area {
             flex: 1;
             overflow-y: auto;
@@ -671,24 +773,22 @@
             gap: 14px;
         }
 
-        /* welcome */
         .welcome {
             text-align: center;
             padding: 40px 20px 20px;
-            animation: fadeUp .4s ease both;
         }
 
-        .welcome-icon {
+        .wicon {
             width: 52px;
             height: 52px;
             border-radius: 14px;
             margin: 0 auto 16px;
-            background: linear-gradient(135deg, var(--adark), var(--a2));
+            background: linear-gradient(135deg, var(--adark), #60A5FA);
             display: grid;
             place-items: center;
         }
 
-        .welcome-icon svg {
+        .wicon svg {
             width: 24px;
             height: 24px;
             fill: none;
@@ -701,7 +801,6 @@
             font-weight: 700;
             letter-spacing: -.5px;
             margin-bottom: 8px;
-            color: var(--t1);
         }
 
         .welcome p {
@@ -737,7 +836,6 @@
             background: var(--adim);
         }
 
-        /* messages */
         .msg {
             display: flex;
             gap: 10px;
@@ -821,12 +919,12 @@
         }
 
         .atag-ok {
-            background: rgba(22, 163, 74, .12);
+            background: var(--gdim);
             color: #15803D;
         }
 
         .atag-err {
-            background: rgba(220, 38, 38, .10);
+            background: var(--rdim);
             color: #DC2626;
         }
 
@@ -836,7 +934,7 @@
         }
 
         .atag-warn {
-            background: rgba(217, 119, 6, .12);
+            background: rgba(255, 159, 10, .12);
             color: #B45309;
         }
 
@@ -925,28 +1023,27 @@
             }
         }
 
-        .agent-tbl-wrap {
+        .agent-tbl {
             overflow-x: auto;
             margin-top: 8px;
             border-radius: var(--rs);
             border: 1px solid var(--border);
         }
 
-        .agent-tbl-wrap table {
+        .agent-tbl table {
             font-size: 11px;
         }
 
-        .agent-tbl-wrap th {
+        .agent-tbl th {
             font-size: 9px;
             padding: 6px 10px;
         }
 
-        .agent-tbl-wrap td {
+        .agent-tbl td {
             padding: 5px 10px;
             font-size: 11px;
         }
 
-        /* INPUT BAR */
         .input-bar {
             border-top: 1px solid var(--border);
             background: var(--s1);
@@ -954,7 +1051,7 @@
             flex-shrink: 0;
         }
 
-        .input-wrap {
+        .iwrap {
             background: var(--s2);
             border: 1px solid var(--border);
             border-radius: 12px;
@@ -965,7 +1062,7 @@
             transition: border-color .15s, box-shadow .15s;
         }
 
-        .input-wrap:focus-within {
+        .iwrap:focus-within {
             border-color: var(--accent);
             box-shadow: 0 0 0 2px var(--adim);
         }
@@ -1026,6 +1123,231 @@
             text-align: center;
         }
 
+        /* ── MODAL ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .3);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--s1);
+            border-radius: 14px;
+            width: 520px;
+            max-width: 95vw;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .15);
+            overflow: hidden;
+        }
+
+        .mhead {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--s2);
+        }
+
+        .mtitle {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .mclose {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--s1);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--t2);
+            transition: all .15s;
+        }
+
+        .mclose:hover {
+            background: var(--rdim);
+            color: var(--red);
+            border-color: var(--red);
+        }
+
+        .mbody {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .mfoot {
+            padding: 14px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            background: var(--s2);
+        }
+
+        .mfield {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .mfield label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--t2);
+        }
+
+        .mfield input {
+            background: var(--s2);
+            border: 1px solid var(--border);
+            border-radius: var(--rs);
+            padding: 8px 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--t1);
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        .mfield input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--adim);
+        }
+
+        .mfield input:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            background: var(--border);
+        }
+
+        .kbadge {
+            font-size: 9px;
+            font-weight: 600;
+            padding: 1px 5px;
+            border-radius: 10px;
+            background: var(--adim);
+            color: var(--accent);
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        .fbtn {
+            height: 34px;
+            padding: 0 16px;
+            border-radius: var(--rs);
+            border: none;
+            cursor: pointer;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all .15s;
+        }
+
+        .fbtn:active {
+            transform: scale(.97);
+        }
+
+        .fbtn-p {
+            background: var(--accent);
+            color: white;
+        }
+
+        .fbtn-p:hover {
+            background: var(--adark);
+        }
+
+        .fbtn-g {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--t2);
+        }
+
+        .fbtn-g:hover {
+            background: var(--bg);
+        }
+
+        .fbtn-r {
+            background: var(--red);
+            color: white;
+        }
+
+        .fbtn-r:hover {
+            background: #cc3530;
+        }
+
+        /* ── TOAST ── */
+        .toasts {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+            animation: slideIn .2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 220px;
+        }
+
+        .toast-ok {
+            background: #15803D;
+            color: white;
+        }
+
+        .toast-err {
+            background: #DC2626;
+            color: white;
+        }
+
+        .toast-info {
+            background: var(--accent);
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(12px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
         ::-webkit-scrollbar {
             width: 4px;
             height: 4px;
@@ -1036,7 +1358,7 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--border2);
+            background: var(--border);
             border-radius: 2px;
         }
     </style>
@@ -1046,14 +1368,12 @@
 
     <header>
         <div class="logo">
-            <div class="logo-mark">
-                <svg viewBox="0 0 24 24">
+            <div class="logo-mark"><svg viewBox="0 0 24 24">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                </svg>
-            </div>
+                </svg></div>
             <span class="logo-name">SAP <span>Intelligence</span></span>
         </div>
-        <div class="header-right">
+        <div class="pills">
             <div class="pill"><span class="dot" id="dotSAP"></span><span id="lblSAP">SAP —</span></div>
             <div class="pill"><span class="dot" id="dotAI"></span><span id="lblAI">OpenAI —</span></div>
         </div>
@@ -1061,18 +1381,17 @@
 
     <div class="app">
         <aside>
-            <div class="sb-section">
-                <div class="sb-label">SAP Verbindung</div>
+            <div class="sb">
+                <div class="sb-lbl">SAP Verbindung</div>
                 <div class="field"><label>Host</label><input id="sapHost" placeholder="http://host:8001" /></div>
                 <div class="field"><label>Client</label><input id="sapClient" placeholder="100" /></div>
                 <div class="field"><label>Benutzer</label><input id="sapUser" placeholder="BPUSER" /></div>
                 <div class="field"><label>Passwort</label><input type="password" id="sapPassword"
                         placeholder="••••••••" /></div>
                 <div class="field">
-                    <label>Proxy-URL <span style="color:var(--t3);font-weight:400">(optional, für CORS)</span></label>
-                    <input id="sapProxy" placeholder="http://localhost:8010" />
-                    <div class="field-hint">Wenn leer → direkt gegen SAP. Wenn gesetzt → Requests laufen über Proxy.
-                    </div>
+                    <label>Proxy-URL <span style="color:var(--t3);font-weight:400">(optional, CORS)</span></label>
+                    <input id="sapProxy" placeholder="http://localhost:3000" />
+                    <div class="field-hint">Leer = direkt gegen SAP. Mit Proxy = CORS-frei.</div>
                 </div>
                 <button class="sbtn sbtn-p" id="saveBtn">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1084,8 +1403,16 @@
                 <button class="sbtn sbtn-g" id="testBtn">Verbindung testen</button>
             </div>
 
-            <div class="sb-section">
-                <div class="sb-label">OpenAI</div>
+            <div class="sb">
+                <div class="sb-lbl">CSRF Token</div>
+                <div style="font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:8px;">Für POST/PATCH/DELETE
+                    wird automatisch ein CSRF-Token geholt.</div>
+                <button class="sbtn sbtn-g" id="csrfBtn">Token neu holen</button>
+                <div class="csrf-status" id="csrfStatus"></div>
+            </div>
+
+            <div class="sb">
+                <div class="sb-lbl">OpenAI</div>
                 <div class="field"><label>API Key</label><input type="password" id="openaiKey" placeholder="sk-..." />
                 </div>
                 <div class="field">
@@ -1105,23 +1432,23 @@
                 </button>
             </div>
 
-            <div class="sb-section flex1">
-                <div class="sb-label">Gespeicherte Abfragen</div>
-                <div class="query-hist" id="queryHist"></div>
+            <div class="sb grow">
+                <div class="sb-lbl">Gespeicherte Abfragen</div>
+                <div class="hist" id="hist"></div>
             </div>
         </aside>
 
         <div class="main">
             <div class="tabs">
-                <div class="tab active" id="tabQuery" onclick="switchTab('query')">
-                    <svg class="tab-icon" viewBox="0 0 24 24">
+                <div class="tab active" id="tabQ" onclick="sw('Q')">
+                    <svg class="ticon" viewBox="0 0 24 24">
                         <polyline points="4 6 4 2 20 2 20 22 4 22 4 18" />
                         <polyline points="8 18 2 12 8 6" />
                     </svg>
                     Direktabfrage
                 </div>
-                <div class="tab" id="tabAgent" onclick="switchTab('agent')">
-                    <svg class="tab-icon" viewBox="0 0 24 24">
+                <div class="tab" id="tabA" onclick="sw('A')">
+                    <svg class="ticon" viewBox="0 0 24 24">
                         <circle cx="12" cy="12" r="10" />
                         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                         <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -1130,14 +1457,16 @@
                 </div>
             </div>
 
-            <!-- QUERY PANEL -->
-            <div class="panel active" id="panelQuery">
-                <div class="query-panel">
+            <!-- QUERY -->
+            <div class="panel active" id="panelQ">
+                <div class="qpanel">
                     <div class="qbar">
-                        <div class="qbar-label">OData Abfrage — Service/EntitySet?$options</div>
-                        <div class="qbar-row">
-                            <input id="queryInput" class="qbar-input"
-                                placeholder="A_TRSYPOSFLOW_CDS/A_TrsyPosFlow?$top=20" />
+                        <div class="qbar-lbl">
+                            OData Abfrage — Service/EntitySet?$options
+                            <span class="proxy-badge" id="proxyBadge" style="display:none">⇄ Proxy aktiv</span>
+                        </div>
+                        <div class="qrow">
+                            <input id="qinput" class="qinput" placeholder="A_TRSYPOSFLOW_CDS/A_TrsyPosFlow?$top=20" />
                             <button class="run-btn" id="runBtn">
                                 <svg viewBox="0 0 24 24">
                                     <path d="M5 3l14 9-14 9V3z" />
@@ -1146,29 +1475,28 @@
                             </button>
                         </div>
                     </div>
-                    <div class="result-box" id="resultBox">
-                        <div class="result-head">
-                            <div class="result-meta">
-                                <span class="rtag rtag-load" id="resultTag">Lädt…</span>
-                                <span class="result-url" id="resultUrl"></span>
+                    <div class="rbox" id="rbox">
+                        <div class="rhead">
+                            <div class="rmeta">
+                                <span class="rtag rtag-load" id="rtag">Lädt…</span>
+                                <span class="rurl" id="rurl"></span>
                             </div>
+                            <div class="ractions" id="ractions"></div>
                         </div>
-                        <div id="resultBody"></div>
+                        <div id="rbody"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- AGENT PANEL -->
-            <div class="panel" id="panelAgent">
+            <!-- AGENT -->
+            <div class="panel" id="panelA">
                 <div class="chat-area" id="chatArea">
                     <div class="welcome" id="welcomeMsg">
-                        <div class="welcome-icon">
-                            <svg viewBox="0 0 24 24">
+                        <div class="wicon"><svg viewBox="0 0 24 24">
                                 <circle cx="12" cy="12" r="10" />
                                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                                 <line x1="12" y1="17" x2="12.01" y2="17" />
-                            </svg>
-                        </div>
+                            </svg></div>
                         <h2>KI-Agent</h2>
                         <p>Beschreibe was du abfragen oder anlegen möchtest — der Agent übersetzt es in einen
                             OData-Call.</p>
@@ -1185,13 +1513,11 @@
                     </div>
                 </div>
                 <div class="input-bar">
-                    <div class="input-wrap">
+                    <div class="iwrap">
                         <textarea id="chatInput" rows="1" placeholder="SAP-Vorgang beschreiben…"></textarea>
-                        <button class="send-btn" id="sendBtn">
-                            <svg viewBox="0 0 24 24">
+                        <button class="send-btn" id="sendBtn"><svg viewBox="0 0 24 24">
                                 <path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z" />
-                            </svg>
-                        </button>
+                            </svg></button>
                     </div>
                     <div class="input-hint">Enter senden · Shift+Enter neue Zeile</div>
                 </div>
@@ -1199,11 +1525,25 @@
         </div>
     </div>
 
+    <!-- MODAL -->
+    <div class="overlay" id="overlay">
+        <div class="modal">
+            <div class="mhead"><span class="mtitle" id="mtitle">Datensatz</span><button class="mclose"
+                    onclick="closeModal()">✕</button></div>
+            <div class="mbody" id="mbody"></div>
+            <div class="mfoot" id="mfoot"></div>
+        </div>
+    </div>
+
+    <div class="toasts" id="toasts"></div>
+
     <script>
-        /* ── STORAGE ── */
-        const SK = 'sap_intel_v2';
-        function ld() { try { return JSON.parse(localStorage.getItem(SK) || '{}'); } catch { return {}; } }
-        function sv() { try { localStorage.setItem(SK, JSON.stringify(cfg)); } catch { } }
+        /* ═══════════════════════════════════
+           STORAGE
+        ═══════════════════════════════════ */
+        const SK = 'sap_intel_v3';
+        function ld() { try { return JSON.parse(localStorage.getItem(SK) || '{}') } catch { return {} } }
+        function sv() { try { localStorage.setItem(SK, JSON.stringify(cfg)) } catch { } }
 
         const _s = ld();
         const cfg = {
@@ -1211,13 +1551,16 @@
             client: _s.client || '',
             user: _s.user || '',
             pass: _s.pass || '',
-            proxy: _s.proxy || 'http://localhost:3000',   /* intentionally clear old broken proxy values */
+            proxy: _s.proxy || 'http://localhost:3000',
             aiKey: _s.aiKey || '',
             model: _s.model || 'gpt-4o-mini',
             queries: dedup(_s.queries || ['A_TRSYPOSFLOW_CDS/A_TrsyPosFlow?$top=20', 'API_FOREIGNEXCHANGEEXPOSURE_SRV/ForeignExchangeExposure?$top=20'])
         };
 
-        /* restore fields */
+        /* state */
+        let rows = [], cols = [], curSvc = '', curEnt = '', csrfTok = null;
+
+        /* restore */
         (function () {
             g('sapHost').value = cfg.host;
             g('sapClient').value = cfg.client;
@@ -1226,156 +1569,254 @@
             g('sapProxy').value = cfg.proxy;
             g('openaiKey').value = cfg.aiKey;
             g('modelSelect').value = cfg.model;
+            updateProxy();
             if (cfg.host || cfg.proxy) setDot('dotSAP', 'lblSAP', 'warn', cfg.proxy ? 'Proxy konfiguriert' : 'SAP konfiguriert');
             if (cfg.aiKey) setDot('dotAI', 'lblAI', 'ok', 'OpenAI ✓');
             renderHist();
         })();
 
         function g(id) { return document.getElementById(id); }
-
-        function bind(id, fn) {
-            const el = g(id);
-            if (el) el.addEventListener('input', () => { fn(el.value); sv(); });
-        }
+        function bind(id, fn) { const el = g(id); el && el.addEventListener('input', () => { fn(el.value); sv(); }); }
         bind('sapHost', v => cfg.host = v.trim().replace(/\/$/, ''));
         bind('sapClient', v => cfg.client = v.trim());
         bind('sapUser', v => cfg.user = v.trim());
         bind('sapPassword', v => cfg.pass = v);
-        bind('sapProxy', v => cfg.proxy = v.trim().replace(/\/$/, ''));
+        bind('sapProxy', v => { cfg.proxy = v.trim().replace(/\/$/, ''); updateProxy(); });
         bind('openaiKey', v => cfg.aiKey = v.trim());
         bind('modelSelect', v => cfg.model = v);
+
+        function updateProxy() {
+            const on = !!cfg.proxy;
+            g('proxyBadge').style.display = on ? 'inline-flex' : 'none';
+        }
 
         g('saveBtn').addEventListener('click', () => { sv(); setDot('dotSAP', 'lblSAP', 'warn', cfg.proxy ? 'Proxy ✓' : 'SAP ✓'); });
         g('saveAIBtn').addEventListener('click', () => { sv(); if (cfg.aiKey) setDot('dotAI', 'lblAI', 'ok', 'OpenAI ✓'); });
 
+        /* ═══ AUTH PARAMS — Credentials in URL, kein Authorization-Header → kein CORS-Preflight ═══ */
+        function authP(leadAmp = false) {
+            let p = '';
+            if (cfg.client) p += '&sap-client=' + enc(cfg.client);
+            if (cfg.user) p += '&sap-user=' + enc(cfg.user);
+            if (cfg.pass) p += '&sap-password=' + enc(cfg.pass);
+            return leadAmp ? p : p.replace(/^&/, '');
+        }
+
+        function baseUrl() { return (cfg.proxy || cfg.host).replace(/\/$/, ''); }
+
+        /* ═══ TEST ═══ */
         g('testBtn').addEventListener('click', async () => {
-            if (!cfg.host && !cfg.proxy) { alert('Bitte Host oder Proxy eintragen.'); return; }
+            if (!cfg.host && !cfg.proxy) { alert('Bitte Host eintragen.'); return; }
             setDot('dotSAP', 'lblSAP', 'warn', 'Teste…');
             try {
-                const url = makeUrl('') + '?$format=json' + (cfg.client ? '&sap-client=' + encodeURIComponent(cfg.client) : '')
-                    + credParams();
-                const res = await doFetch(url);
-                if (res.ok || res.status === 401 || res.status === 403) {
-                    setDot('dotSAP', 'lblSAP', 'ok', 'HTTP ' + res.status);
-                } else {
-                    setDot('dotSAP', 'lblSAP', 'warn', 'HTTP ' + res.status);
-                }
+                const url = baseUrl() + '/sap/opu/odata/sap/?$format=json' + authP(true);
+                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                setDot('dotSAP', 'lblSAP', res.ok || res.status === 401 ? 'ok' : 'warn', (cfg.proxy ? 'Proxy · ' : '') + 'HTTP ' + res.status);
             } catch (e) { setDot('dotSAP', 'lblSAP', '', 'Fehler'); }
         });
 
-        /* ── TABS ── */
-        function switchTab(n) {
-            ['query', 'agent'].forEach(t => {
-                g('tab' + cap(t)).classList.toggle('active', t === n);
-                g('panel' + cap(t)).classList.toggle('active', t === n);
-            });
+        /* ═══ CSRF ═══ */
+        g('csrfBtn').addEventListener('click', () => fetchCsrf(true));
+        async function fetchCsrf(manual = false) {
+            const svc = curSvc || (cfg.queries[0] || '').split('/')[0];
+            if (!baseUrl() || !svc) { if (manual) toast('Host & Service benötigt', 'err'); return; }
+            const url = baseUrl() + '/sap/opu/odata/sap/' + svc + '/?$format=json' + authP(true);
+            try {
+                const res = await fetch(url, { headers: { 'X-CSRF-Token': 'Fetch', 'Accept': 'application/json' } });
+                const tok = res.headers.get('X-CSRF-Token') || res.headers.get('x-csrf-token');
+                if (tok && tok !== 'Required') {
+                    csrfTok = tok;
+                    g('csrfStatus').textContent = '✓ ' + tok.slice(0, 32) + (tok.length > 32 ? '…' : '');
+                    if (manual) toast('CSRF-Token geholt', 'ok');
+                } else { if (manual) toast('Kein Token erhalten', 'err'); }
+            } catch (e) { if (manual) toast('Token-Fehler: ' + e.message, 'err'); }
         }
-        function cap(s) { return s[0].toUpperCase() + s.slice(1); }
+        async function ensureCsrf() { if (!csrfTok) await fetchCsrf(); return csrfTok; }
 
-        /* ── HISTORY ── */
+        function writeHdrs() { return { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-Token': csrfTok || '' }; }
+
+        /* ═══ HISTORY ═══ */
         function renderHist() {
-            const el = g('queryHist');
+            const el = g('hist');
             if (!cfg.queries.length) { el.innerHTML = '<div style="font-size:11px;color:var(--t3)">Noch keine Abfragen</div>'; return; }
             el.innerHTML = cfg.queries.map((q, i) =>
-                `<div class="hist-item" onclick="useHist(${i})">
-      <span class="hist-q">${esc(q)}</span>
-      <button class="hist-del" onclick="delHist(event,${i})">✕</button>
+                `<div class="hitem" onclick="useHist(${i})">
+      <span class="hq">${esc(q)}</span>
+      <button class="hdel" onclick="delHist(event,${i})">✕</button>
     </div>`
             ).join('');
         }
-        function useHist(i) { g('queryInput').value = cfg.queries[i]; switchTab('query'); runQuery(); }
+        function useHist(i) { g('qinput').value = cfg.queries[i]; sw('Q'); runQuery(); }
         function delHist(e, i) { e.stopPropagation(); cfg.queries.splice(i, 1); sv(); renderHist(); }
         function addHist(q) { cfg.queries = dedup([q, ...cfg.queries]).slice(0, 10); sv(); renderHist(); }
 
-        /* ── URL BUILDING ── */
-        function makeUrl(entityPath) {
-            const base = (cfg.proxy || cfg.host).replace(/\/$/, '');
-            return base + '/sap/opu/odata/sap/' + entityPath;
+        /* ═══ TABS ═══ */
+        function sw(n) {
+            ['Q', 'A'].forEach(t => {
+                g('tab' + t).classList.toggle('active', t === n);
+                g('panel' + t).classList.toggle('active', t === n);
+            });
         }
 
-        /* Credentials as URL params — avoids Authorization header → no CORS preflight.
-           Only used when NOT going through a proxy. When proxy is set, use Basic Auth header. */
-        function credParams() {
-            if (cfg.proxy) return ''; /* proxy handles auth */
-            let p = '';
-            if (cfg.user) p += '&sap-user=' + encodeURIComponent(cfg.user);
-            if (cfg.pass) p += '&sap-password=' + encodeURIComponent(cfg.pass);
-            return p;
-        }
-
-        function buildQueryUrl(raw) {
-            const sep = raw.includes('?') ? '&' : '?';
-            let q = '$format=json';
-            if (cfg.client) q += '&sap-client=' + encodeURIComponent(cfg.client);
-            q += credParams().replace(/^&/, '&');
-            return makeUrl(raw) + sep + q;
-        }
-
-        function doFetch(url, opts = {}) {
-            const headers = Object.assign({ 'Accept': 'application/json' }, opts.headers || {});
-            if (cfg.proxy && cfg.user) {
-                headers['Authorization'] = 'Basic ' + btoa(cfg.user + ':' + cfg.pass);
-            }
-            /* credentials:include sends browser SAP session cookies as fallback */
-            return fetch(url, Object.assign({ credentials: 'include' }, opts, { headers }));
-        }
-
-        async function odataCall(entityPath, method, data) {
-            const url = buildQueryUrl(entityPath);
-            const opts = { method };
-            if (method !== 'GET' && data) {
-                opts.headers = { 'Content-Type': 'application/json' };
-                opts.body = JSON.stringify(data);
-            }
-            const res = await doFetch(url, opts);
-            if (!res.ok) { const t = await res.text().catch(() => ''); throw new Error('HTTP ' + res.status + ' — ' + t.slice(0, 300)); }
-            const t = await res.text();
-            return t ? JSON.parse(t) : { status: res.status, ok: true };
-        }
-
-        /* ── QUERY PANEL ── */
+        /* ═══ RUN QUERY ═══ */
         g('runBtn').addEventListener('click', runQuery);
-        g('queryInput').addEventListener('keydown', e => { if (e.key === 'Enter') runQuery(); });
+        g('qinput').addEventListener('keydown', e => { if (e.key === 'Enter') runQuery(); });
 
         async function runQuery() {
-            const raw = g('queryInput').value.trim();
+            const raw = g('qinput').value.trim();
             if (!raw) return;
-            if (!cfg.host && !cfg.proxy) { alert('Bitte SAP Host konfigurieren und speichern.'); return; }
+            if (!cfg.host && !cfg.proxy) { alert('Bitte SAP Host konfigurieren.'); return; }
             addHist(raw);
-            const url = buildQueryUrl(raw);
-            showQL(url);
+            const parts = raw.split('?')[0].split('/');
+            curSvc = parts[0] || ''; curEnt = parts[1] || '';
+            const sep = raw.includes('?') ? '&' : '?';
+            const url = baseUrl() + '/sap/opu/odata/sap/' + raw + sep + '$format=json' + authP(true);
+            showLoad(url);
+            fetchCsrf();
             try {
-                const res = await doFetch(url);
-                const text = await res.text();
-                if (!res.ok) { showQE('HTTP ' + res.status, text.slice(0, 400), url); return; }
-                let json; try { json = JSON.parse(text); } catch { showQR(text, url); return; }
-                showQT(json, url);
-            } catch (e) { showQE('Netzwerkfehler', e.message, url); }
+                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                const txt = await res.text();
+                if (!res.ok) { showErr('HTTP ' + res.status, txt.slice(0, 600), url); return; }
+                let json; try { json = JSON.parse(txt); } catch { showRaw(txt, url); return; }
+                showTable(json, url);
+            } catch (e) { showErr('Netzwerkfehler', e.message, url); }
         }
 
-        function showQL(url) {
-            g('resultBox').classList.add('show');
-            g('resultUrl').textContent = url;
-            setRT('rtag-load', 'Lädt…');
-            g('resultBody').innerHTML = '<div class="loading-row"><div class="spinner"></div> Anfrage läuft…</div>';
+        /* ═══ DISPLAY ═══ */
+        function showLoad(url) {
+            g('rbox').classList.add('show');
+            setRH('rtag-load', 'Lädt…', url, false);
+            g('rbody').innerHTML = '<div class="loading-row"><div class="spinner"></div> Anfrage läuft…</div>';
         }
-        function showQT(json, url) {
-            const rows = xRows(json);
-            if (rows && rows.length) { setRT('rtag-ok', rows.length + ' Datensatz' + (rows.length !== 1 ? 'e' : '')); g('resultUrl').textContent = url; g('resultBody').innerHTML = rTbl(rows); }
-            else showQR(JSON.stringify(json, null, 2), url);
-        }
-        function showQR(text, url) { setRT('rtag-load', 'Raw'); g('resultUrl').textContent = url; g('resultBody').innerHTML = '<pre class="raw-out">' + esc(text) + '</pre>'; }
-        function showQE(lbl, detail, url) { setRT('rtag-err', lbl); g('resultUrl').textContent = url; g('resultBody').innerHTML = '<pre class="raw-out" style="color:var(--red)">' + esc(detail) + '</pre>'; }
-        function setRT(cls, txt) { const el = g('resultTag'); el.className = 'rtag ' + cls; el.textContent = txt; }
 
-        /* ── AGENT ── */
+        function showTable(json, url) {
+            let r = null;
+            if (Array.isArray(json?.d?.results)) r = json.d.results;
+            else if (Array.isArray(json?.value)) r = json.value;
+            else if (json?.d && typeof json.d === 'object') r = [json.d];
+            if (r && r.length) {
+                rows = r; cols = Object.keys(r[0]).filter(k => k !== '__metadata');
+                const th = '<tr>' + cols.map(c => '<th>' + esc(c) + '</th>').join('') + '<th class="acol">Aktionen</th></tr>';
+                const tb = r.map((row, i) => '<tr>' + cols.map(c => `<td title="${esc(str(row[c]))}">${esc(str(row[c]))}</td>`).join('')
+                    + `<td class="acell"><button class="rbtn edit" onclick="openEdit(${i})">✏</button><button class="rbtn del" onclick="confirmDel(${i})">🗑</button></td></tr>`).join('');
+                setRH('rtag-ok', r.length + ' Datensatz' + (r.length !== 1 ? 'e' : ''), url, true);
+                g('rbody').innerHTML = '<div class="tbl-wrap"><table><thead>' + th + '</thead><tbody>' + tb + '</tbody></table></div>';
+            } else { showRaw(JSON.stringify(json, null, 2), url); }
+        }
+
+        function setRH(cls, txt, url, actions) {
+            g('rtag').className = 'rtag ' + cls; g('rtag').textContent = txt;
+            g('rurl').textContent = url;
+            g('rbox').classList.add('show');
+            g('ractions').innerHTML = actions ? `
+    <button class="icon-btn grn" onclick="openCreate()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Neu anlegen</button>
+    <button class="icon-btn" onclick="exportXlsx()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Excel</button>`: '';
+        }
+        function showRaw(txt, url) { setRH('rtag-load', 'Raw', url, false); g('rbody').innerHTML = '<pre class="raw-out">' + esc(txt) + '</pre>'; }
+        function showErr(lbl, d, url) { setRH('rtag-err', lbl, url, false); g('rbody').innerHTML = '<pre class="raw-out" style="color:var(--red)">' + esc(d) + '</pre>'; }
+
+        /* ═══ EXCEL ═══ */
+        function exportXlsx() {
+            if (!rows.length) { toast('Keine Daten', 'err'); return; }
+            const data = rows.map(r => { const o = {}; cols.forEach(c => { o[c] = str(r[c]); }); return o; });
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, curEnt || 'Daten');
+            const mw = cols.map(c => Math.min(40, Math.max(c.length, ...data.map(r => str(r[c]).length))));
+            ws['!cols'] = mw.map(w => ({ wch: w + 2 }));
+            const fn = (curEnt || 'export') + '_' + new Date().toISOString().slice(0, 10) + '.xlsx';
+            XLSX.writeFile(wb, fn);
+            toast('Excel gespeichert: ' + fn, 'ok');
+        }
+
+        /* ═══ CRUD ═══ */
+        function eUri(row) {
+            if (row.__metadata?.uri) { const b = baseUrl(); return row.__metadata.uri.replace(/^https?:\/\/[^/]+/, b); }
+            return null;
+        }
+
+        function openCreate() {
+            if (!cols.length) { toast('Erst GET ausführen', 'err'); return; }
+            const html = cols.map(c => `<div class="mfield"><label>${esc(c)}</label><input id="mf_${esc(c)}" value=""/></div>`).join('');
+            openModal('Neuen Datensatz anlegen', html,
+                `<button class="fbtn fbtn-g" onclick="closeModal()">Abbrechen</button>
+     <button class="fbtn fbtn-p" onclick="doCreate()">Anlegen</button>`);
+        }
+        async function doCreate() {
+            const payload = {}; cols.forEach(c => { const el = g('mf_' + c); if (el) payload[c] = el.value; });
+            const url = baseUrl() + '/sap/opu/odata/sap/' + curSvc + '/' + curEnt + '?$format=json' + authP(true);
+            await ensureCsrf();
+            try {
+                const res = await fetch(url, { method: 'POST', headers: writeHdrs(), body: JSON.stringify(payload) });
+                if (res.ok || res.status === 201) { toast('Angelegt ✓', 'ok'); closeModal(); runQuery(); }
+                else { const t = await res.text(); toast('Fehler ' + res.status + ': ' + t.slice(0, 120), 'err'); }
+            } catch (e) { toast(e.message, 'err'); }
+        }
+
+        function openEdit(i) {
+            const row = rows[i], uri = eUri(row);
+            if (!uri) { toast('Kein __metadata.uri — PATCH nicht möglich', 'err'); return; }
+            const km = uri.match(/\(([^)]+)\)$/);
+            const keys = new Set();
+            if (km) km[1].split(',').forEach(kv => { const n = kv.split('=')[0].trim(); if (n) keys.add(n); });
+            const html = cols.map(c => {
+                const isK = keys.has(c);
+                return `<div class="mfield"><label>${esc(c)}${isK ? '<span class="kbadge">KEY</span>' : ''}</label>
+    <input id="mf_${esc(c)}" value="${esc(str(row[c]))}" ${isK ? 'disabled' : ''}></div>`;
+            }).join('');
+            openModal('Datensatz bearbeiten', html,
+                `<button class="fbtn fbtn-g" onclick="closeModal()">Abbrechen</button>
+     <button class="fbtn fbtn-p" onclick="doPatch(${i})">Speichern</button>`);
+        }
+        async function doPatch(i) {
+            const row = rows[i], uri = eUri(row); if (!uri) return;
+            const km = uri.match(/\(([^)]+)\)$/); const keys = new Set();
+            if (km) km[1].split(',').forEach(kv => { const n = kv.split('=')[0].trim(); if (n) keys.add(n); });
+            const payload = {};
+            cols.forEach(c => { if (keys.has(c)) return; const el = g('mf_' + c); if (el && !el.disabled) payload[c] = el.value; });
+            const url = uri + '?$format=json' + authP(true);
+            await ensureCsrf();
+            try {
+                const res = await fetch(url, { method: 'PATCH', headers: writeHdrs(), body: JSON.stringify(payload) });
+                if (res.ok || res.status === 204) { toast('Gespeichert ✓', 'ok'); closeModal(); runQuery(); }
+                else { const t = await res.text(); toast('Fehler ' + res.status + ': ' + t.slice(0, 120), 'err'); }
+            } catch (e) { toast(e.message, 'err'); }
+        }
+
+        function confirmDel(i) {
+            const row = rows[i], uri = eUri(row);
+            if (!uri) { toast('Kein __metadata.uri — DELETE nicht möglich', 'err'); return; }
+            const km = uri.match(/\(([^)]+)\)$/);
+            const ki = km ? km[1] : '?';
+            openModal('Datensatz löschen',
+                `<div style="font-size:14px;line-height:1.6">Datensatz wirklich löschen?<br>
+     <code style="font-family:monospace;font-size:12px;color:var(--red)">${esc(ki)}</code></div>`,
+                `<button class="fbtn fbtn-g" onclick="closeModal()">Abbrechen</button>
+     <button class="fbtn fbtn-r" onclick="doDel(${i})">Löschen</button>`);
+        }
+        async function doDel(i) {
+            const row = rows[i], uri = eUri(row); if (!uri) return;
+            const url = uri + '?' + authP();
+            await ensureCsrf();
+            try {
+                const res = await fetch(url, { method: 'DELETE', headers: writeHdrs() });
+                if (res.ok || res.status === 204) { toast('Gelöscht ✓', 'ok'); closeModal(); runQuery(); }
+                else { const t = await res.text(); toast('Fehler ' + res.status + ': ' + t.slice(0, 120), 'err'); }
+            } catch (e) { toast(e.message, 'err'); }
+        }
+
+        /* ═══ MODAL ═══ */
+        function openModal(title, body, foot) { g('mtitle').textContent = title; g('mbody').innerHTML = body; g('mfoot').innerHTML = foot; g('overlay').classList.add('open'); }
+        function closeModal() { g('overlay').classList.remove('open'); }
+        g('overlay').addEventListener('click', e => { if (e.target === g('overlay')) closeModal(); });
+
+        /* ═══ AGENT ═══ */
         const chatArea = g('chatArea'), chatInput = g('chatInput'), sendBtn = g('sendBtn');
         let busy = false;
-
         chatInput.addEventListener('input', () => { chatInput.style.height = 'auto'; chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px'; });
         chatInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
         sendBtn.addEventListener('click', handleSend);
-        function chip(t) { chatInput.value = t; switchTab('agent'); handleSend(); }
+        function chip(t) { chatInput.value = t; sw('A'); handleSend(); }
 
         async function handleSend() {
             const text = chatInput.value.trim();
@@ -1405,13 +1846,26 @@
                 if (!entity) { addSM('Kein OData Service erkannt.', 'warn'); }
                 else {
                     let ep = entity;
-                    if (method === 'GET' && filter) ep += (ep.includes('?') ? '&' : '?') + '$filter=' + encodeURIComponent(filter);
+                    if (method === 'GET' && filter) ep += (ep.includes('?') ? '&' : '?') + '$filter=' + enc(filter);
+                    const sep2 = ep.includes('?') ? '&' : '?';
+                    const url = baseUrl() + '/sap/opu/odata/sap/' + ep + sep2 + '$format=json' + authP(true);
                     if (method === 'GET') {
-                        const r = await odataCall(ep, 'GET', null); addBM(rAgRes(r));
-                    } else if (data.length) {
-                        for (const rec of data) { const r = await odataCall(ep, method, rec); addBM(rAgRes(r)); }
+                        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                        const txt = await res.text();
+                        if (!res.ok) { addBM('<span class="atag atag-err">❌ HTTP ' + res.status + '</span> ' + esc(txt.slice(0, 200))); }
+                        else { try { addBM(renderAg(JSON.parse(txt))); } catch { addBM('<pre class="code-block">' + esc(txt.slice(0, 500)) + '</pre>'); } }
                     } else {
-                        const r = await odataCall(ep, method, null); addBM(rAgRes(r));
+                        await ensureCsrf();
+                        for (const rec of data) {
+                            const res = await fetch(url, { method, headers: writeHdrs(), body: JSON.stringify(rec) });
+                            const txt = await res.text();
+                            if (res.ok || res.status === 201 || res.status === 204) { addBM('<span class="atag atag-ok">✓ ' + method + ' erfolgreich</span>'); }
+                            else { addBM('<span class="atag atag-err">❌ HTTP ' + res.status + '</span> ' + esc(txt.slice(0, 200))); }
+                        }
+                        if (!data.length) {
+                            const res = await fetch(url, { method, headers: writeHdrs() });
+                            addBM(res.ok || res.status === 204 ? '<span class="atag atag-ok">✓ ' + method + ' erfolgreich</span>' : '<span class="atag atag-err">❌ HTTP ' + res.status + '</span>');
+                        }
                     }
                 }
             } catch (e) { ty.remove(); addBM('<span class="atag atag-err">❌ Fehler</span> ' + esc(e.message)); }
@@ -1428,10 +1882,9 @@
                         {
                             role: 'system', content: 'Du bist SAP OData Experte. Antworte IMMER nur mit Funktionsaufruf sap_odata_call. '
                                 + 'Bei GET: data=[]. Bei POST/PATCH: data=Array. '
-                                + 'FX Exposure Felder: FXExposureType,CompanyCode,Portfolio,FXExposureValidFromDate,FXExposureDueDate,FXExposureAmountInRiskCurrency,FXExposureRiskCurrency,FXExposureTargetCurrency,FXExposureDirection(1=Inflow,2=Outflow),FXExposureExternalID. '
-                                + 'TRM: CompanyCode,PartnerPortfolio,TransType,Product,CurrPair,Amount1,Amount2,ValueDate,MaturityDate,CounterParty. '
-                                + 'Position Flows Service: A_TRSYPOSFLOW_CDS/A_TrsyPosFlow. '
-                                + 'FX Exposure Service: API_FOREIGNEXCHANGEEXPOSURE_SRV/ForeignExchangeExposure.'
+                                + 'FX Exposure: FXExposureType,CompanyCode,Portfolio,FXExposureValidFromDate(YYYY-MM-DD),FXExposureDueDate,FXExposureAmountInRiskCurrency,FXExposureRiskCurrency,FXExposureTargetCurrency,FXExposureDirection(1=Inflow,2=Outflow),FXExposureExternalID. '
+                                + 'TRM Trades: CompanyCode,PartnerPortfolio,TransType,Product,CurrPair,Amount1,Amount2,ValueDate,MaturityDate,CounterParty. '
+                                + 'Position Flows: A_TRSYPOSFLOW_CDS/A_TrsyPosFlow. FX Exposure Service: API_FOREIGNEXCHANGEEXPOSURE_SRV/ForeignExchangeExposure.'
                         },
                         { role: 'user', content: userText }
                     ],
@@ -1442,8 +1895,7 @@
                                 properties: {
                                     entity: { type: 'string' }, method: { type: 'string', enum: ['GET', 'POST', 'PATCH', 'DELETE'] },
                                     filter: { type: 'string' }, data: { type: 'array', items: { type: 'object' } }
-                                },
-                                required: ['entity', 'method', 'data']
+                                }, required: ['entity', 'method', 'data']
                             }
                         }
                     }],
@@ -1457,46 +1909,39 @@
             throw new Error('Kein Funktionsaufruf erhalten.');
         }
 
-        /* ── RENDER ── */
-        function xRows(json) {
-            if (Array.isArray(json?.d?.results)) return json.d.results;
-            if (Array.isArray(json?.value)) return json.value;
-            if (json?.d && typeof json.d === 'object') return [json.d];
-            return null;
-        }
-        function rTbl(rows) {
-            const cols = Object.keys(rows[0]).filter(k => k !== '__metadata');
-            const h = '<tr>' + cols.map(c => '<th>' + esc(c) + '</th>').join('') + '</tr>';
-            const b = rows.map(r => '<tr>' + cols.map(c => '<td title="' + esc(str(r[c])) + '">' + esc(str(r[c])) + '</td>').join('') + '</tr>').join('');
-            return '<div class="tbl-wrap"><table><thead>' + h + '</thead><tbody>' + b + '</tbody></table></div>';
-        }
-        function rAgRes(result) {
-            const rows = xRows(result);
-            if (rows && rows.length) {
-                const cols = Object.keys(rows[0]).filter(k => k !== '__metadata');
-                const h = '<tr>' + cols.map(c => '<th>' + esc(c) + '</th>').join('') + '</tr>';
-                const b = rows.map(r => '<tr>' + cols.map(c => '<td title="' + esc(str(r[c])) + '">' + esc(str(r[c])) + '</td>').join('') + '</tr>').join('');
-                return '<span class="atag atag-ok">✓ ' + rows.length + ' Datensatz' + (rows.length !== 1 ? 'e' : '') + '</span>'
-                    + '<div class="agent-tbl-wrap"><table><thead>' + h + '</thead><tbody>' + b + '</tbody></table></div>';
+        function renderAg(json) {
+            let r = null;
+            if (Array.isArray(json?.d?.results)) r = json.d.results;
+            else if (Array.isArray(json?.value)) r = json.value;
+            else if (json?.d && typeof json.d === 'object') r = [json.d];
+            if (r && r.length) {
+                const cs = Object.keys(r[0]).filter(k => k !== '__metadata');
+                const h = '<tr>' + cs.map(c => '<th>' + esc(c) + '</th>').join('') + '</tr>';
+                const b = r.map(row => '<tr>' + cs.map(c => '<td title="' + esc(str(row[c])) + '">' + esc(str(row[c])) + '</td>').join('') + '</tr>').join('');
+                return '<span class="atag atag-ok">✓ ' + r.length + ' Datensatz' + (r.length !== 1 ? 'e' : '') + '</span>'
+                    + '<div class="agent-tbl"><table><thead>' + h + '</thead><tbody>' + b + '</tbody></table></div>';
             }
             return '<span class="atag atag-ok">✓ Response</span>'
                 + '<div class="code-block"><div class="code-top"><span class="code-lbl">API Response</span>'
                 + '<button class="copy-btn" onclick="doCopy(this)">Kopieren</button></div>'
-                + '<div>' + esc(JSON.stringify(result, null, 2)) + '</div></div>';
+                + '<div>' + esc(JSON.stringify(json, null, 2)) + '</div></div>';
         }
 
-        /* ── UI HELPERS ── */
-        function addUM(text) { const el = mk('div', 'msg user'); el.innerHTML = '<div class="av u">L</div><div class="bubble">' + esc(text) + '</div>'; chatArea.appendChild(el); scrollDn(); }
+        /* ═══ UI HELPERS ═══ */
+        function addUM(t) { const el = mk('div', 'msg user'); el.innerHTML = '<div class="av u">L</div><div class="bubble">' + esc(t) + '</div>'; chatArea.appendChild(el); scrollDn(); }
         function addBM(html) { const el = mk('div', 'msg bot'); el.innerHTML = '<div class="av b">⚡</div><div class="bubble">' + html + '</div>'; chatArea.appendChild(el); scrollDn(); return el; }
         function addSM(html, type) { const m = { ok: 'atag-ok', err: 'atag-err', info: 'atag-info', warn: 'atag-warn' }; const l = { ok: 'OK', err: 'FEHLER', info: 'INFO', warn: 'HINWEIS' }; g('welcomeMsg').style.display = 'none'; return addBM('<span class="atag ' + (m[type] || 'atag-info') + '">' + (l[type] || type) + '</span> ' + html); }
         function addTyp() { const el = mk('div', 'msg bot'); el.innerHTML = '<div class="av b">⚡</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>'; chatArea.appendChild(el); scrollDn(); return el; }
         function mk(tag, cls) { const el = document.createElement(tag); el.className = cls; return el; }
         function setDot(d, l, s, lbl) { g(d).className = 'dot' + (s ? ' ' + s : ''); g(l).textContent = lbl; }
         function scrollDn() { chatArea.scrollTop = chatArea.scrollHeight; }
-        function dedup(arr) { const seen = new Set(); return arr.filter(q => { const k = q.trim(); if (seen.has(k)) return false; seen.add(k); return true; }); }
+        function dedup(a) { const s = new Set(); return a.filter(q => { const k = q.trim(); if (s.has(k)) return false; s.add(k); return true; }); }
         function str(v) { return v == null ? '' : String(v); }
+        function enc(v) { return encodeURIComponent(v); }
         function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-        function doCopy(btn) { const code = btn.closest('.code-block').querySelector('div:last-child'); navigator.clipboard.writeText(code.textContent).then(() => { btn.textContent = '✓ Kopiert'; setTimeout(() => btn.textContent = 'Kopieren', 1500); }); }
+        function doCopy(btn) { const c = btn.closest('.code-block').querySelector('div:last-child'); navigator.clipboard.writeText(c.textContent).then(() => { btn.textContent = '✓ Kopiert'; setTimeout(() => btn.textContent = 'Kopieren', 1500); }); }
+        function toast(msg, type = 'info') { const c = g('toasts'); const el = document.createElement('div'); el.className = 'toast toast-' + type; el.textContent = msg; c.appendChild(el); setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 350); }, 3000); }
+        function writeHdrs() { return { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-Token': csrfTok || '' }; }
     </script>
 </body>
 
