@@ -841,7 +841,29 @@
 
     <script>
         /* ─── State ─── */
-        let cfg = { openaiKey: '', model: 'gpt-4o-mini', sapHost: '', sapClient: '', sapUser: '', sapPass: '' };
+        const STORAGE_KEY = 'sap_odata_agent_cfg';
+
+        function loadCfg() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch { return {}; }
+        }
+
+        function saveCfg() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+        }
+
+        const saved = loadCfg();
+        let cfg = {
+            openaiKey: saved.openaiKey || '',
+            model: saved.model || 'gpt-4o-mini',
+            sapHost: saved.sapHost || '',
+            sapClient: saved.sapClient || '',
+            sapUser: saved.sapUser || '',
+            sapPass: saved.sapPass || ''
+        };
+
         let csvData = [];
         let busy = false;
 
@@ -850,6 +872,24 @@
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
         const welcomeMsg = document.getElementById('welcomeMsg');
+
+        /* ─── Restore fields from storage ─── */
+        function restoreFields() {
+            if (cfg.openaiKey) {
+                document.getElementById('openaiKey').value = cfg.openaiKey;
+                document.getElementById('modelSelect').value = cfg.model;
+                setStatus('dotOpenAI', 'lblOpenAI', 'ok', 'OpenAI ✓');
+            }
+            if (cfg.sapHost) {
+                document.getElementById('sapHost').value = cfg.sapHost;
+                document.getElementById('sapClient').value = cfg.sapClient;
+                document.getElementById('sapUser').value = cfg.sapUser;
+                document.getElementById('sapPassword').value = cfg.sapPass;
+                setStatus('dotSAP', 'lblSAP', 'warn', 'SAP gespeichert');
+            }
+        }
+
+        restoreFields();
 
         /* ─── Auto-resize textarea ─── */
         chatInput.addEventListener('input', () => {
@@ -869,7 +909,8 @@
             cfg.model = document.getElementById('modelSelect').value;
             if (cfg.openaiKey) {
                 setStatus('dotOpenAI', 'lblOpenAI', 'ok', 'OpenAI ✓');
-                appendSystemMsg('✅ OpenAI API Key gespeichert.', 'success');
+                saveCfg();
+                appendSystemMsg('✅ OpenAI API Key gespeichert und im Browser hinterlegt.', 'success');
             } else {
                 setStatus('dotOpenAI', 'lblOpenAI', '', 'OpenAI —');
             }
@@ -883,7 +924,8 @@
             cfg.sapPass = document.getElementById('sapPassword').value.trim();
             if (cfg.sapHost && cfg.sapUser) {
                 setStatus('dotSAP', 'lblSAP', 'warn', 'SAP gespeichert');
-                appendSystemMsg(`✅ SAP-Verbindung konfiguriert: <b>${cfg.sapHost}</b>`, 'success');
+                saveCfg();
+                appendSystemMsg(`✅ SAP-Verbindung gespeichert und im Browser hinterlegt: <b>${cfg.sapHost}</b>`, 'success');
             }
         });
 
