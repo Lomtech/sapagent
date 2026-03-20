@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SAP OData Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #F2F2F7;
+            --surface: #FFFFFF;
+            --surface-2: #F9F9FB;
+            --border: #E0E0E8;
+            --accent: #0A84FF;
+            --accent-dim: #E8F2FF;
+            --accent-dark: #006FD6;
+            --text-1: #1C1C1E;
+            --text-2: #6E6E73;
+            --text-3: #AEAEB2;
+            --success: #30D158;
+            --warning: #FF9F0A;
+            --danger: #FF453A;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, .07), 0 4px 16px rgba(0, 0, 0, .05);
+            --shadow-lg: 0 4px 24px rgba(0, 0, 0, .10);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Header ── */
+        header {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+        }
+
+        .logo-icon svg {
+            width: 16px;
+            height: 16px;
+            fill: white;
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--text-2);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-3);
+            display: inline-block;
+        }
+
+        .status-dot.ok {
+            background: var(--success);
+            box-shadow: 0 0 0 3px rgba(48, 209, 88, .2);
+        }
+
+        .status-dot.warn {
+            background: var(--warning);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* ── Layout ── */
+        .app {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            flex: 1;
+            gap: 0;
+        }
+
+        /* ── Sidebar ── */
+        aside {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+            height: calc(100vh - 60px);
+            position: sticky;
+            top: 60px;
+        }
+
+        .sidebar-section {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            animation: fadeUp .4s ease both;
+        }
+
+        .sidebar-section:nth-child(1) {
+            animation-delay: .05s;
+        }
+
+        .sidebar-section:nth-child(2) {
+            animation-delay: .10s;
+        }
+
+        .sidebar-section:nth-child(3) {
+            animation-delay: .15s;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            color: var(--text-2);
+        }
+
+        .section-badge {
+            font-size: 10px;
+            font-weight: 500;
+            padding: 2px 7px;
+            border-radius: 20px;
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        /* ── Form Elements ── */
+        .field {
+            margin-bottom: 10px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-2);
+            margin-bottom: 4px;
+            letter-spacing: .2px;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 11px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            color: var(--text-1);
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, .12);
+        }
+
+        .field input[type="password"] {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        .field input[type="file"] {
+            padding: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: background .15s, transform .1s, box-shadow .15s;
+        }
+
+        .btn:active {
+            transform: scale(.97);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            box-shadow: 0 2px 8px rgba(10, 132, 255, .3);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-2);
+            border: 1px solid var(--border);
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg);
+        }
+
+        /* ── Main ── */
+        main {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+        }
+
+        /* ── Chat Area ── */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .welcome {
+            text-align: center;
+            padding: 60px 32px;
+            animation: fadeUp .5s ease both;
+        }
+
+        .welcome h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            margin-bottom: 10px;
+        }
+
+        .welcome p {
+            color: var(--text-2);
+            font-size: 15px;
+            max-width: 400px;
+            margin: 0 auto 28px;
+            line-height: 1.6;
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .quick-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 13px;
+            color: var(--text-1);
+            cursor: pointer;
+            transition: all .15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .quick-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        /* ── Message ── */
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: fadeUp .25s ease both;
+            max-width: 900px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+            align-self: flex-end;
+        }
+
+        .message.system {
+            align-self: flex-start;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Syne', sans-serif;
+        }
+
+        .avatar.user-av {
+            background: var(--accent);
+            color: white;
+        }
+
+        .avatar.bot-av {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            font-size: 16px;
+        }
+
+        .bubble {
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            max-width: 620px;
+        }
+
+        .message.user .bubble {
+            background: var(--accent);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.system .bubble {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+            box-shadow: var(--shadow);
+        }
+
+        /* ── Code Block ── */
+        .code-block {
+            background: #1C1C1E;
+            color: #E5E5EA;
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.7;
+            overflow-x: auto;
+            margin-top: 8px;
+            position: relative;
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .code-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: #98989D;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, .08);
+            border: none;
+            border-radius: 4px;
+            color: #98989D;
+            font-size: 11px;
+            padding: 3px 8px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: background .15s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, .15);
+            color: white;
+        }
+
+        /* ── Status Tags ── */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+
+        .tag-success {
+            background: rgba(48, 209, 88, .12);
+            color: #1D8348;
+        }
+
+        .tag-error {
+            background: rgba(255, 69, 58, .12);
+            color: #C0392B;
+        }
+
+        .tag-info {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .tag-warn {
+            background: rgba(255, 159, 10, .12);
+            color: #B7770D;
+        }
+
+        /* ── Typing Indicator ── */
+        .typing {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            padding: 4px 0;
+        }
+
+        .typing span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-3);
+            animation: bounce .8s infinite ease-in-out;
+        }
+
+        .typing span:nth-child(2) {
+            animation-delay: .15s;
+        }
+
+        .typing span:nth-child(3) {
+            animation-delay: .30s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: translateY(0);
+                opacity: .5;
+            }
+
+            40% {
+                transform: translateY(-5px);
+                opacity: 1;
+            }
+        }
+
+        /* ── Input Bar ── */
+        .input-bar {
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+            padding: 16px 24px;
+        }
+
+        .input-wrapper {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            padding: 10px 14px;
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, .10);
+        }
+
+        #chatInput {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            color: var(--text-1);
+            resize: none;
+            max-height: 140px;
+            line-height: 1.5;
+        }
+
+        #chatInput::placeholder {
+            color: var(--text-3);
+        }
+
+        .send-btn {
+            width: 34px;
+            height: 34px;
+            background: var(--accent);
+            border: none;
+            border-radius: 9px;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background .15s, transform .1s;
+        }
+
+        .send-btn:hover {
+            background: var(--accent-dark);
+        }
+
+        .send-btn:active {
+            transform: scale(.93);
+        }
+
+        .send-btn svg {
+            fill: white;
+            width: 15px;
+            height: 15px;
+        }
+
+        .send-btn:disabled {
+            background: var(--border);
+            cursor: not-allowed;
+        }
+
+        .input-hint {
+            font-size: 11px;
+            color: var(--text-3);
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* ── Batch Panel ── */
+        .csv-preview {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-2);
+            max-height: 80px;
+            overflow-y: auto;
+            margin-top: 6px;
+            white-space: pre;
+        }
+
+        /* ── Progress ── */
+        .progress-wrap {
+            background: var(--border);
+            border-radius: 20px;
+            height: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 20px;
+            transition: width .3s ease;
+            width: 0%;
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-3);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 720px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+
+            aside {
+                height: auto;
+                position: static;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            main {
+                height: auto;
+            }
+
+            .chat-area {
+                height: 50vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
+            </div>
+            SAP OData Agent
+        </div>
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-dot" id="dotOpenAI"></span>
+                <span id="lblOpenAI">OpenAI —</span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot" id="dotSAP"></span>
+                <span id="lblSAP">SAP —</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="app">
+
+        <!-- Sidebar -->
+        <aside>
+
+            <!-- OpenAI -->
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <span class="section-title">OpenAI</span>
+                    <span class="section-badge">GPT-4o-mini</span>
+                </div>
+                <div class="field">
+                    <label>API Key</label>
+                    <input type="password" id="openaiKey" placeholder="sk-..." />
+                </div>
+                <div class="field">
+                    <label>Modell</label>
+                    <select id="modelSelect">
+                        <option value="gpt-4o-mini">gpt-4o-mini</option>
+                        <option value="gpt-4o">gpt-4o</option>
+                        <option value="gpt-4-turbo">gpt-4-turbo</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="saveOpenAI">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Speichern
+                </button>
+            </div>
+
+            <!-- SAP -->
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <span class="section-title">SAP OData</span>
+                    <span class="section-badge">Basic Auth</span>
+                </div>
+                <div class="field">
+                    <label>Host</label>
+                    <input type="text" id="sapHost" placeholder="https://host:8000" />
+                </div>
+                <div class="field">
+                    <label>Client</label>
+                    <input type="text" id="sapClient" placeholder="100" />
+                </div>
+                <div class="field">
+                    <label>Benutzer</label>
+                    <input type="text" id="sapUser" placeholder="BPUSER" />
+                </div>
+                <div class="field">
+                    <label>Passwort</label>
+                    <input type="password" id="sapPassword" placeholder="••••••••" />
+                </div>
+                <button class="btn btn-primary" id="saveSAP" style="margin-bottom:6px">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Speichern
+                </button>
+                <button class="btn btn-ghost" id="testSAP">Verbindung testen</button>
+            </div>
+
+            <!-- CSV Batch -->
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <span class="section-title">Batch / CSV</span>
+                </div>
+                <div class="field">
+                    <label>CSV-Datei hochladen</label>
+                    <input type="file" id="csvFile" accept=".csv" />
+                </div>
+                <div id="csvPreview" class="csv-preview" style="display:none"></div>
+                <div class="field" style="margin-top:10px">
+                    <label>OData Entity</label>
+                    <input type="text" id="batchEntity" placeholder="Z_TRM_FTR_SRV/TradeSet" />
+                </div>
+                <div class="progress-wrap" id="progressWrap">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <button class="btn btn-primary" id="batchSend" style="margin-top:8px">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <polyline points="22 2 15 22 11 13 2 9 22 2" />
+                    </svg>
+                    Batch ausführen
+                </button>
+            </div>
+
+        </aside>
+
+        <!-- Main -->
+        <main>
+            <div class="chat-area" id="chatArea">
+                <div class="welcome" id="welcomeMsg">
+                    <h2>SAP OData Agent</h2>
+                    <p>Beschreibe dein Anliegen in natürlicher Sprache — der Agent extrahiert die Daten und ruft die
+                        OData-API auf.</p>
+                    <div class="quick-actions">
+                        <button class="quick-btn" onclick="insertPrompt('Lege 5 FX Forward Trades mit EUR/USD an')">🔁
+                            FX Forwards anlegen</button>
+                        <button class="quick-btn" onclick="insertPrompt('Lese alle offenen Trades aus /TradeSet')">📋
+                            Trades abfragen</button>
+                        <button class="quick-btn"
+                            onclick="insertPrompt('Aktualisiere die Gegenpartei von Trade 1001 auf BP00042')">✏️ Trade
+                            aktualisieren</button>
+                        <button class="quick-btn" onclick="insertPrompt('Lösche Trade 9999 aus dem System')">🗑️ Trade
+                            löschen</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Bar -->
+            <div class="input-bar">
+                <div class="input-wrapper">
+                    <textarea id="chatInput" rows="1"
+                        placeholder="Beschreibe einen SAP-Vorgang oder stell eine Frage…"></textarea>
+                    <button class="send-btn" id="sendBtn">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-hint">Enter zum Senden · Shift+Enter für neue Zeile</div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        /* ─── State ─── */
+        let cfg = { openaiKey: '', model: 'gpt-4o-mini', sapHost: '', sapClient: '', sapUser: '', sapPass: '' };
+        let csvData = [];
+        let busy = false;
+
+        /* ─── DOM refs ─── */
+        const chatArea = document.getElementById('chatArea');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const welcomeMsg = document.getElementById('welcomeMsg');
+
+        /* ─── Auto-resize textarea ─── */
+        chatInput.addEventListener('input', () => {
+            chatInput.style.height = 'auto';
+            chatInput.style.height = Math.min(chatInput.scrollHeight, 140) + 'px';
+        });
+
+        chatInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+        });
+
+        sendBtn.addEventListener('click', handleSend);
+
+        /* ─── Save OpenAI ─── */
+        document.getElementById('saveOpenAI').addEventListener('click', () => {
+            cfg.openaiKey = document.getElementById('openaiKey').value.trim();
+            cfg.model = document.getElementById('modelSelect').value;
+            if (cfg.openaiKey) {
+                setStatus('dotOpenAI', 'lblOpenAI', 'ok', 'OpenAI ✓');
+                appendSystemMsg('✅ OpenAI API Key gespeichert.', 'success');
+            } else {
+                setStatus('dotOpenAI', 'lblOpenAI', '', 'OpenAI —');
+            }
+        });
+
+        /* ─── Save SAP ─── */
+        document.getElementById('saveSAP').addEventListener('click', () => {
+            cfg.sapHost = document.getElementById('sapHost').value.trim().replace(/\/$/, '');
+            cfg.sapClient = document.getElementById('sapClient').value.trim();
+            cfg.sapUser = document.getElementById('sapUser').value.trim();
+            cfg.sapPass = document.getElementById('sapPassword').value.trim();
+            if (cfg.sapHost && cfg.sapUser) {
+                setStatus('dotSAP', 'lblSAP', 'warn', 'SAP gespeichert');
+                appendSystemMsg(`✅ SAP-Verbindung konfiguriert: <b>${cfg.sapHost}</b>`, 'success');
+            }
+        });
+
+        /* ─── Test SAP ─── */
+        document.getElementById('testSAP').addEventListener('click', async () => {
+            if (!cfg.sapHost) { appendSystemMsg('⚠️ Bitte SAP Host speichern.', 'warn'); return; }
+            appendSystemMsg('⏳ Teste SAP-Verbindung…', 'info');
+            try {
+                const url = `${cfg.sapHost}/sap/opu/odata/sap/?sap-client=${cfg.sapClient}&$format=json`;
+                const res = await fetch(url, {
+                    headers: { 'Authorization': 'Basic ' + btoa(`${cfg.sapUser}:${cfg.sapPass}`) }
+                });
+                if (res.ok) {
+                    setStatus('dotSAP', 'lblSAP', 'ok', 'SAP ✓');
+                    appendSystemMsg(`✅ SAP erreichbar — HTTP ${res.status}`, 'success');
+                } else {
+                    appendSystemMsg(`⚠️ SAP antwortet: HTTP ${res.status}`, 'warn');
+                }
+            } catch (err) {
+                appendSystemMsg(`❌ SAP nicht erreichbar: ${err.message}`, 'error');
+            }
+        });
+
+        /* ─── CSV Upload ─── */
+        document.getElementById('csvFile').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                const text = ev.target.result;
+                csvData = parseCSV(text);
+                const preview = document.getElementById('csvPreview');
+                preview.style.display = 'block';
+                preview.textContent = text.slice(0, 200) + (text.length > 200 ? '…' : '');
+                appendSystemMsg(`📁 CSV geladen: <b>${file.name}</b> — ${csvData.length} Datensätze erkannt.`, 'info');
+            };
+            reader.readAsText(file);
+        });
+
+        /* ─── Batch ─── */
+        document.getElementById('batchSend').addEventListener('click', async () => {
+            if (!cfg.sapHost || !cfg.sapUser) { appendSystemMsg('⚠️ SAP-Verbindung nicht konfiguriert.', 'warn'); return; }
+            if (!csvData.length) { appendSystemMsg('⚠️ Keine CSV-Daten geladen.', 'warn'); return; }
+            const entity = document.getElementById('batchEntity').value.trim();
+            if (!entity) { appendSystemMsg('⚠️ Bitte OData Entity angeben.', 'warn'); return; }
+
+            const wrap = document.getElementById('progressWrap');
+            const bar = document.getElementById('progressBar');
+            wrap.style.display = 'block';
+            appendSystemMsg(`🔄 Batch-Verarbeitung gestartet: <b>${csvData.length} Datensätze</b> → <code>${entity}</code>`, 'info');
+
+            let ok = 0, fail = 0;
+            for (let i = 0; i < csvData.length; i++) {
+                const rec = csvData[i];
+                bar.style.width = Math.round(((i + 1) / csvData.length) * 100) + '%';
+                try {
+                    const res = await odataPost(`/sap/opu/odata/sap/${entity}`, rec);
+                    ok++;
+                } catch (err) {
+                    fail++;
+                }
+            }
+
+            wrap.style.display = 'none';
+            bar.style.width = '0%';
+            appendSystemMsg(`✅ Batch abgeschlossen: <span class="tag tag-success">${ok} erfolgreich</span> <span class="tag tag-error">${fail} Fehler</span>`, 'success');
+        });
+
+        /* ─── Send Chat ─── */
+        async function handleSend() {
+            const text = chatInput.value.trim();
+            if (!text || busy) return;
+            if (!cfg.openaiKey) { appendSystemMsg('⚠️ Bitte zuerst den OpenAI API Key speichern.', 'warn'); return; }
+            if (!cfg.sapHost) { appendSystemMsg('⚠️ Bitte SAP-Verbindung konfigurieren.', 'warn'); return; }
+
+            welcomeMsg && (welcomeMsg.style.display = 'none');
+            appendUserMsg(text);
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            busy = true;
+            sendBtn.disabled = true;
+
+            const typingEl = appendTyping();
+
+            try {
+                /* 1. LLM Function Call */
+                const llmResult = await callOpenAI(text);
+                typingEl.remove();
+
+                if (llmResult.type === 'function') {
+                    const { entity, method, data, filter } = llmResult.args;
+                    const methodLabel = method || 'POST';
+                    appendBotMsg(`
+          <div>Ich habe deinen Befehl verstanden. Ich rufe jetzt die SAP OData API auf:</div>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+            <span class="tag tag-info">Entity: ${entity || '?'}</span>
+            <span class="tag tag-warn">Methode: ${methodLabel}</span>
+            ${data ? `<span class="tag tag-info">${data.length} Datensätze</span>` : ''}
+          </div>
+          <div class="code-block" style="margin-top:10px">
+            <div class="code-header">
+              <span class="code-label">Payload</span>
+              <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+            </div>
+            <div>${escHtml(JSON.stringify(llmResult.args, null, 2))}</div>
+          </div>
+        `);
+
+                    /* 2. OData Call */
+                    if (data && data.length) {
+                        for (const rec of data) {
+                            const path = `/sap/opu/odata/sap/${entity}`;
+                            try {
+                                const result = await odataPost(path, rec);
+                                appendBotMsg(`
+                <span class="tag tag-success">✓ Response</span>
+                <div class="code-block" style="margin-top:8px">
+                  <div class="code-header">
+                    <span class="code-label">API Response</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Kopieren</button>
+                  </div>
+                  <div>${escHtml(JSON.stringify(result, null, 2))}</div>
+                </div>
+              `);
+                            } catch (err) {
+                                appendBotMsg(`<span class="tag tag-error">❌ Fehler</span> ${escHtml(err.message)}`);
+                            }
+                        }
+                    }
+
+                } else {
+                    appendBotMsg(llmResult.text || 'Keine verwertbare Antwort erhalten.');
+                }
+
+            } catch (err) {
+                typingEl.remove();
+                appendBotMsg(`<span class="tag tag-error">❌ Fehler</span> ${escHtml(err.message)}`);
+            }
+
+            busy = false;
+            sendBtn.disabled = false;
+            scrollBottom();
+        }
+
+        /* ─── OpenAI Call ─── */
+        async function callOpenAI(userText) {
+            const res = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${cfg.openaiKey}`
+                },
+                body: JSON.stringify({
+                    model: cfg.model,
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `Du bist ein SAP TRM/ABAP-Experte. Du analysierst Nutzeranfragen und extrahierst SAP OData Operationen daraus.
+Wenn der Nutzer Trades anlegen, ändern oder abfragen möchte, antworte ausschließlich mit einem Funktionsaufruf.
+Nutze dabei reale SAP TRM-Feldnamen wie: CompanyCode, PartnerPortfolio, TransType, Product, CurrPair, Amount1, Amount2, ValueDate, MaturityDate, CounterParty, TradingParty.
+Die 'data' sind immer ein Array von Objekten.`
+                        },
+                        { role: 'user', content: userText }
+                    ],
+                    tools: [
+                        {
+                            type: 'function',
+                            function: {
+                                name: 'sap_odata_call',
+                                description: 'Führe eine SAP OData API Operation aus',
+                                parameters: {
+                                    type: 'object',
+                                    properties: {
+                                        entity: { type: 'string', description: 'OData EntitySet z.B. Z_TRM_FTR_SRV/TradeSet' },
+                                        method: { type: 'string', enum: ['POST', 'GET', 'PATCH', 'DELETE'] },
+                                        filter: { type: 'string', description: '$filter Parameter für GET' },
+                                        data: { type: 'array', description: 'Array von Objekten für POST/PATCH', items: { type: 'object' } }
+                                    },
+                                    required: ['entity', 'method']
+                                }
+                            }
+                        }
+                    ],
+                    tool_choice: 'auto'
+                })
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err?.error?.message || `OpenAI HTTP ${res.status}`);
+            }
+
+            const json = await res.json();
+            const msg = json.choices[0].message;
+
+            if (msg.tool_calls && msg.tool_calls.length) {
+                const tc = msg.tool_calls[0];
+                return { type: 'function', args: JSON.parse(tc.function.arguments) };
+            }
+
+            return { type: 'text', text: msg.content };
+        }
+
+        /* ─── OData POST ─── */
+        async function odataPost(path, data) {
+            const params = cfg.sapClient ? `?sap-client=${cfg.sapClient}` : '';
+            const res = await fetch(`${cfg.sapHost}${path}${params}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': 'Basic ' + btoa(`${cfg.sapUser}:${cfg.sapPass}`)
+                },
+                body: JSON.stringify(data)
+            });
+            const text = await res.text();
+            return text ? JSON.parse(text) : { status: res.status };
+        }
+
+        /* ─── CSV Parser ─── */
+        function parseCSV(text) {
+            const lines = text.trim().split('\n');
+            if (lines.length < 2) return [];
+            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+            return lines.slice(1).map(line => {
+                const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+                const obj = {};
+                headers.forEach((h, i) => { obj[h] = vals[i] || ''; });
+                return obj;
+            });
+        }
+
+        /* ─── UI Helpers ─── */
+        function appendUserMsg(text) {
+            const el = document.createElement('div');
+            el.className = 'message user';
+            el.innerHTML = `
+      <div class="avatar user-av">L</div>
+      <div class="bubble">${escHtml(text)}</div>
+    `;
+            chatArea.appendChild(el);
+            scrollBottom();
+        }
+
+        function appendBotMsg(html) {
+            const el = document.createElement('div');
+            el.className = 'message system';
+            el.innerHTML = `
+      <div class="avatar bot-av">⚡</div>
+      <div class="bubble">${html}</div>
+    `;
+            chatArea.appendChild(el);
+            scrollBottom();
+            return el;
+        }
+
+        function appendSystemMsg(html, type = 'info') {
+            const tagMap = { success: 'tag-success', error: 'tag-error', info: 'tag-info', warn: 'tag-warn' };
+            const el = document.createElement('div');
+            el.className = 'message system';
+            el.innerHTML = `
+      <div class="avatar bot-av">⚡</div>
+      <div class="bubble"><span class="tag ${tagMap[type] || 'tag-info'}">${type.toUpperCase()}</span> ${html}</div>
+    `;
+            chatArea.appendChild(el);
+            scrollBottom();
+            welcomeMsg && (welcomeMsg.style.display = 'none');
+            return el;
+        }
+
+        function appendTyping() {
+            const el = document.createElement('div');
+            el.className = 'message system';
+            el.innerHTML = `
+      <div class="avatar bot-av">⚡</div>
+      <div class="bubble">
+        <div class="typing"><span></span><span></span><span></span></div>
+      </div>
+    `;
+            chatArea.appendChild(el);
+            scrollBottom();
+            return el;
+        }
+
+        function setStatus(dotId, lblId, state, label) {
+            const dot = document.getElementById(dotId);
+            const lbl = document.getElementById(lblId);
+            dot.className = 'status-dot' + (state ? ' ' + state : '');
+            lbl.textContent = label;
+        }
+
+        function scrollBottom() {
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function escHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function insertPrompt(text) {
+            chatInput.value = text;
+            chatInput.dispatchEvent(new Event('input'));
+            chatInput.focus();
+        }
+
+        function copyCode(btn) {
+            const block = btn.closest('.code-block').querySelector('div:last-child');
+            navigator.clipboard.writeText(block.textContent).then(() => {
+                btn.textContent = 'Kopiert ✓';
+                setTimeout(() => btn.textContent = 'Kopieren', 1500);
+            });
+        }
+    </script>
+
+</body>
+
+</html>
