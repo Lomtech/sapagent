@@ -1095,10 +1095,7 @@
                     messages: [
                         {
                             role: 'system',
-                            content: `Du bist ein SAP TRM/ABAP-Experte. Du analysierst Nutzeranfragen und extrahierst SAP OData Operationen daraus.
-Wenn der Nutzer Trades anlegen, ändern oder abfragen möchte, antworte ausschließlich mit einem Funktionsaufruf.
-Nutze dabei reale SAP TRM-Feldnamen wie: CompanyCode, PartnerPortfolio, TransType, Product, CurrPair, Amount1, Amount2, ValueDate, MaturityDate, CounterParty, TradingParty.
-Die 'data' sind immer ein Array von Objekten.`
+                            content: 'Du bist ein SAP OData API-Experte. Antworte IMMER nur mit dem Funktionsaufruf sap_odata_call, niemals mit Text. Das Feld data MUSS immer ein Array mit mindestens einem Objekt enthalten. Fuer FX Exposures nutze: FXExposureType, CompanyCode, Portfolio, FXExposureValidFromDate, FXExposureDueDate, FXExposureAmountInRiskCurrency, FXExposureRiskCurrency, FXExposureTargetCurrency, FXExposureDirection (1=Inflow 2=Outflow), FXExposureExternalID. Fuer TRM Trades: CompanyCode, PartnerPortfolio, TransType, Product, CurrPair, Amount1, Amount2, ValueDate, MaturityDate, CounterParty. Generiere fehlende ExternalIDs automatisch als EXT-XXXXX.'
                         },
                         { role: 'user', content: userText }
                     ],
@@ -1107,21 +1104,21 @@ Die 'data' sind immer ein Array von Objekten.`
                             type: 'function',
                             function: {
                                 name: 'sap_odata_call',
-                                description: 'Führe eine SAP OData API Operation aus',
+                                description: 'Fuehre eine SAP OData API Operation aus',
                                 parameters: {
                                     type: 'object',
                                     properties: {
-                                        entity: { type: 'string', description: 'OData EntitySet z.B. Z_TRM_FTR_SRV/TradeSet' },
+                                        entity: { type: 'string', description: 'OData Service + EntitySet z.B. API_FOREIGNEXCHANGEEXPOSURE_SRV/ForeignExchangeExposure' },
                                         method: { type: 'string', enum: ['POST', 'GET', 'PATCH', 'DELETE'] },
-                                        filter: { type: 'string', description: '$filter Parameter für GET' },
-                                        data: { type: 'array', description: 'Array von Objekten für POST/PATCH', items: { type: 'object' } }
+                                        filter: { type: 'string', description: 'filter fuer GET' },
+                                        data: { type: 'array', description: 'Array von Datensaetzen fuer POST/PATCH - PFLICHT bei POST', items: { type: 'object' } }
                                     },
-                                    required: ['entity', 'method']
+                                    required: ['entity', 'method', 'data']
                                 }
                             }
                         }
                     ],
-                    tool_choice: 'auto'
+                    tool_choice: { type: 'function', function: { name: 'sap_odata_call' } }
                 })
             });
 
