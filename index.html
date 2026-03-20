@@ -941,10 +941,10 @@
             if (!cfg.sapHost) { sysMsg('SAP Host ist leer.', 'warn'); return; }
             sysMsg('Teste Verbindung…', 'info');
             try {
-                const url = cfg.sapHost + '/sap/opu/odata/sap/?sap-client=' + encodeURIComponent(cfg.sapClient)
-                    + '&$format=json&sap-user=' + encodeURIComponent(cfg.sapUser)
-                    + '&sap-password=' + encodeURIComponent(cfg.sapPass);
-                const res = await fetch(url);
+                const url = cfg.sapHost + '/sap/opu/odata/sap/?sap-client=' + encodeURIComponent(cfg.sapClient) + '&$format=json';
+                const res = await fetch(url, {
+                    headers: { 'Authorization': 'Basic ' + btoa(cfg.sapUser + ':' + cfg.sapPass) }
+                });
                 if (res.ok || res.status === 401) {
                     setDot('dotSAP', 'lblSAP', 'ok', 'SAP ✓');
                     sysMsg('SAP erreichbar — HTTP ' + res.status, 'ok');
@@ -1142,19 +1142,18 @@
         async function odataCall(entityPath, method, data, filter) {
             const base = cfg.sapHost.replace(/\/$/, '');
 
-            /* Build query string manually — URLSearchParams encodes '$' to '%24' which SAP rejects.
-               Credentials go into the URL (sap-user / sap-password) so the browser sends a simple
-               request without an Authorization header — this avoids the CORS preflight entirely,
-               just like typing the URL directly into the browser address bar. */
+            /* Build query string manually — URLSearchParams encodes '$' to '%24' which SAP rejects */
             const qparts = ['$format=json'];
             if (cfg.sapClient) qparts.push('sap-client=' + encodeURIComponent(cfg.sapClient));
-            if (cfg.sapUser) qparts.push('sap-user=' + encodeURIComponent(cfg.sapUser));
-            if (cfg.sapPass) qparts.push('sap-password=' + encodeURIComponent(cfg.sapPass));
             if (method === 'GET' && filter) qparts.push('$filter=' + encodeURIComponent(filter));
 
             const url = base + '/sap/opu/odata/sap/' + entityPath + '?' + qparts.join('&');
 
-            const headers = { 'Accept': 'application/json' };
+            /* Use standard Basic Auth header — CORS extension handles the preflight */
+            const headers = {
+                'Accept': 'application/json',
+                'Authorization': 'Basic ' + btoa(cfg.sapUser + ':' + cfg.sapPass)
+            };
             const opts = { method, headers };
 
             if (method !== 'GET' && data) {
