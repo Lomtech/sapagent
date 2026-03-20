@@ -4,29 +4,30 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SAP OData Agent</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <title>SAP OData Tool · CRUD</title>
     <link
-        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=JetBrains+Mono:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=JetBrains+Mono:wght@400&display=swap"
         rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
             --bg: #F2F2F7;
             --surface: #FFFFFF;
-            --surface-2: #F9F9FB;
+            --s2: #F9F9FB;
             --border: #E0E0E8;
             --accent: #0A84FF;
-            --accent-dim: #E8F2FF;
-            --accent-dark: #006FD6;
-            --text-1: #1C1C1E;
-            --text-2: #6E6E73;
-            --text-3: #AEAEB2;
-            --success: #30D158;
-            --warning: #FF9F0A;
-            --radius: 12px;
-            --radius-sm: 8px;
-            --shadow: 0 1px 3px rgba(0, 0, 0, .07), 0 4px 16px rgba(0, 0, 0, .05);
+            --adim: #E8F2FF;
+            --adark: #006FD6;
+            --t1: #1C1C1E;
+            --t2: #6E6E73;
+            --t3: #AEAEB2;
+            --green: #30D158;
+            --gdim: rgba(48, 209, 88, .12);
+            --red: #FF453A;
+            --rdim: rgba(255, 69, 58, .12);
+            --yellow: #FF9F0A;
+            --r: 12px;
+            --rs: 8px;
         }
 
         *,
@@ -40,19 +41,19 @@
         body {
             font-family: 'DM Sans', sans-serif;
             background: var(--bg);
-            color: var(--text-1);
+            color: var(--t1);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        /* Header */
+        /* ── Header ── */
         header {
-            background: rgba(255, 255, 255, 0.92);
+            background: rgba(255, 255, 255, .92);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
-            padding: 0 28px;
-            height: 58px;
+            height: 56px;
+            padding: 0 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -64,68 +65,62 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 9px;
+            gap: 8px;
             font-family: 'Syne', sans-serif;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 15px;
         }
 
         .logo-icon {
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             background: var(--accent);
-            border-radius: 7px;
+            border-radius: 6px;
             display: grid;
             place-items: center;
         }
 
         .logo-icon svg {
-            width: 14px;
-            height: 14px;
+            width: 13px;
+            height: 13px;
             fill: none;
             stroke: white;
             stroke-width: 2.5;
         }
 
-        .header-status {
+        .conn-status {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 6px;
             font-size: 12px;
-            color: var(--text-2);
-        }
-
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            color: var(--t2);
         }
 
         .dot {
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: var(--text-3);
-            transition: background .3s, box-shadow .3s;
+            background: var(--t3);
+            transition: all .3s;
         }
 
         .dot.ok {
-            background: var(--success);
+            background: var(--green);
             box-shadow: 0 0 0 3px rgba(48, 209, 88, .2);
         }
 
         .dot.warn {
-            background: var(--warning);
+            background: var(--yellow);
         }
 
-        /* Layout */
-        .app {
+        /* ── Layout ── */
+        .layout {
             display: grid;
-            grid-template-columns: 288px 1fr;
+            grid-template-columns: 260px 1fr;
             flex: 1;
         }
 
-        /* Sidebar */
+        /* ── Sidebar ── */
         aside {
             background: var(--surface);
             border-right: 1px solid var(--border);
@@ -133,42 +128,27 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            height: calc(100vh - 58px);
-            overflow-y: auto;
             position: sticky;
-            top: 58px;
+            top: 56px;
+            height: calc(100vh - 56px);
+            overflow-y: auto;
         }
 
         .card {
-            background: var(--surface-2);
+            background: var(--s2);
             border: 1px solid var(--border);
-            border-radius: var(--radius);
+            border-radius: var(--r);
             padding: 14px;
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 11px;
         }
 
         .card-title {
             font-family: 'Syne', sans-serif;
             font-weight: 700;
-            font-size: 10.5px;
-            letter-spacing: .8px;
-            text-transform: uppercase;
-            color: var(--text-2);
-        }
-
-        .badge {
             font-size: 10px;
-            font-weight: 600;
-            padding: 2px 7px;
-            border-radius: 20px;
-            background: var(--accent-dim);
-            color: var(--accent);
+            letter-spacing: .9px;
+            text-transform: uppercase;
+            color: var(--t2);
+            margin-bottom: 12px;
         }
 
         .field {
@@ -176,41 +156,27 @@
         }
 
         .field label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
             font-size: 11px;
             font-weight: 500;
-            color: var(--text-2);
+            color: var(--t2);
+            display: block;
             margin-bottom: 4px;
         }
 
-        .lbadge {
-            font-size: 9px;
-            font-weight: 700;
-            padding: 1px 5px;
-            border-radius: 8px;
-            background: var(--accent-dim);
-            color: var(--accent);
-            letter-spacing: .3px;
-        }
-
-        .field input,
-        .field select {
+        .field input {
             width: 100%;
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
+            border-radius: var(--rs);
             padding: 7px 10px;
             font-family: 'DM Sans', sans-serif;
             font-size: 13px;
-            color: var(--text-1);
+            color: var(--t1);
             outline: none;
             transition: border-color .15s, box-shadow .15s;
         }
 
-        .field input:focus,
-        .field select:focus {
+        .field input:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(10, 132, 255, .12);
         }
@@ -221,33 +187,43 @@
             letter-spacing: 2px;
         }
 
-        .field input[type="file"] {
-            padding: 5px 8px;
-            font-size: 12px;
-            cursor: pointer;
+        .field.proxy-field input {
+            border-color: rgba(10, 132, 255, .3);
+            background: var(--adim);
+        }
+
+        .field.proxy-field input:focus {
+            border-color: var(--accent);
+            background: var(--surface);
         }
 
         .field-hint {
-            font-size: 10.5px;
-            color: var(--text-3);
+            font-size: 10px;
+            color: var(--t3);
             margin-top: 3px;
             line-height: 1.4;
         }
 
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 6px 0;
+        }
+
         .btn {
-            display: inline-flex;
+            width: 100%;
+            display: flex;
             align-items: center;
             justify-content: center;
             gap: 5px;
-            padding: 8px 13px;
-            border-radius: var(--radius-sm);
+            padding: 8px;
+            border-radius: var(--rs);
+            border: none;
+            cursor: pointer;
             font-family: 'DM Sans', sans-serif;
             font-size: 13px;
             font-weight: 500;
-            cursor: pointer;
-            border: none;
-            width: 100%;
-            transition: background .15s, box-shadow .15s, transform .1s;
+            transition: all .15s;
             margin-top: 6px;
         }
 
@@ -255,292 +231,323 @@
             transform: scale(.97);
         }
 
-        .btn-primary {
+        .btn-p {
             background: var(--accent);
             color: white;
         }
 
-        .btn-primary:hover {
-            background: var(--accent-dark);
-            box-shadow: 0 2px 8px rgba(10, 132, 255, .3);
+        .btn-p:hover {
+            background: var(--adark);
         }
 
-        .btn-ghost {
+        .btn-g {
             background: transparent;
-            color: var(--text-2);
             border: 1px solid var(--border);
+            color: var(--t2);
         }
 
-        .btn-ghost:hover {
+        .btn-g:hover {
             background: var(--bg);
         }
 
-        .progress-wrap {
-            height: 4px;
-            background: var(--border);
-            border-radius: 2px;
-            overflow: hidden;
-            margin: 8px 0 0;
-            display: none;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: var(--accent);
-            border-radius: 2px;
-            transition: width .3s;
-            width: 0%;
-        }
-
-        .csv-preview {
-            background: #1C1C1E;
-            color: #8E8E93;
-            border-radius: var(--radius-sm);
-            padding: 8px 10px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            max-height: 65px;
-            overflow-y: auto;
-            white-space: pre;
-            margin-top: 6px;
-            display: none;
-        }
-
-        /* Main */
+        /* ── Main ── */
         main {
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            height: calc(100vh - 58px);
-            overflow: hidden;
-        }
-
-        .chat-area {
-            flex: 1;
+            gap: 16px;
             overflow-y: auto;
-            padding: 24px 28px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
         }
 
-        /* Welcome */
-        .welcome {
-            text-align: center;
-            padding: 48px 24px 24px;
-        }
-
-        .welcome h2 {
-            font-family: 'Syne', sans-serif;
-            font-size: 26px;
-            font-weight: 800;
-            letter-spacing: -.6px;
-            margin-bottom: 8px;
-        }
-
-        .welcome p {
-            color: var(--text-2);
-            font-size: 14px;
-            max-width: 380px;
-            margin: 0 auto 22px;
-            line-height: 1.6;
-        }
-
-        .chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 7px;
-            justify-content: center;
-        }
-
-        .chip {
+        /* ── Query Box ── */
+        .query-box {
             background: var(--surface);
             border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 16px;
+        }
+
+        .query-box-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+
+        .query-box-header label {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 10px;
+            letter-spacing: .9px;
+            text-transform: uppercase;
+            color: var(--t2);
+        }
+
+        .proxy-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 7px;
             border-radius: 20px;
-            padding: 7px 14px;
+            background: var(--adim);
+            color: var(--accent);
+            border: 1px solid rgba(10, 132, 255, .2);
+        }
+
+        .query-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .query-input {
+            flex: 1;
+            background: var(--s2);
+            border: 1px solid var(--border);
+            border-radius: var(--rs);
+            padding: 9px 12px;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 13px;
-            cursor: pointer;
-            transition: all .15s;
+            color: var(--t1);
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        .query-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, .1);
+        }
+
+        .query-input::placeholder {
+            color: var(--t3);
             font-family: 'DM Sans', sans-serif;
         }
 
-        .chip:hover {
+        .run-btn {
+            height: 38px;
+            padding: 0 18px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: var(--rs);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background .15s, transform .1s;
+        }
+
+        .run-btn:hover {
+            background: var(--adark);
+        }
+
+        .run-btn:active {
+            transform: scale(.97);
+        }
+
+        .run-btn svg {
+            fill: white;
+            width: 13px;
+            height: 13px;
+        }
+
+        .quick-label {
+            font-size: 11px;
+            color: var(--t3);
+            margin-top: 10px;
+            margin-bottom: 6px;
+        }
+
+        .quick-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .quick-item {
+            background: var(--s2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            color: var(--t2);
+            transition: all .15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .quick-item:hover {
             border-color: var(--accent);
             color: var(--accent);
-            background: var(--accent-dim);
+            background: var(--adim);
         }
 
-        /* Messages */
-        .msg {
-            display: flex;
-            gap: 10px;
-            max-width: 900px;
-            animation: fadeUp .2s ease both;
-        }
-
-        .msg.user {
-            flex-direction: row-reverse;
-            align-self: flex-end;
-        }
-
-        .msg.bot {
-            align-self: flex-start;
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(6px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .avatar {
-            width: 30px;
-            height: 30px;
+        .quick-item .del-btn {
+            display: none;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
-            display: grid;
-            place-items: center;
+            background: var(--border);
+            border: none;
+            cursor: pointer;
+            color: var(--t2);
+            font-size: 10px;
+            line-height: 14px;
+            text-align: center;
+            padding: 0;
             flex-shrink: 0;
-            font-family: 'Syne', sans-serif;
-            font-weight: 700;
+            align-items: center;
+            justify-content: center;
         }
 
-        .avatar.u {
-            background: var(--accent);
+        .quick-item:hover .del-btn {
+            display: flex;
+        }
+
+        .quick-item .del-btn:hover {
+            background: var(--red);
             color: white;
-            font-size: 12px;
         }
 
-        .avatar.b {
+        /* ── Result Panel ── */
+        .result-panel {
             background: var(--surface);
             border: 1px solid var(--border);
-            font-size: 15px;
+            border-radius: var(--r);
+            overflow: hidden;
+            display: none;
         }
 
-        .bubble {
-            padding: 11px 15px;
-            border-radius: 15px;
-            font-size: 13.5px;
-            line-height: 1.6;
-            max-width: 700px;
+        .result-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--s2);
         }
 
-        .msg.user .bubble {
-            background: var(--accent);
-            color: white;
-            border-bottom-right-radius: 4px;
+        .result-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
-        .msg.bot .bubble {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-bottom-left-radius: 4px;
-            box-shadow: var(--shadow);
+        .result-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* Tags */
         .tag {
             display: inline-flex;
             align-items: center;
             gap: 3px;
             font-size: 11px;
-            font-weight: 500;
-            padding: 2px 8px;
+            font-weight: 600;
+            padding: 2px 9px;
             border-radius: 20px;
-            margin-right: 3px;
         }
 
         .tag-ok {
-            background: rgba(48, 209, 88, .12);
+            background: var(--gdim);
             color: #1A7A3A;
         }
 
         .tag-err {
-            background: rgba(255, 69, 58, .12);
+            background: var(--rdim);
             color: #C0392B;
         }
 
         .tag-info {
-            background: var(--accent-dim);
+            background: var(--adim);
             color: var(--accent);
         }
 
-        .tag-warn {
-            background: rgba(255, 159, 10, .12);
-            color: #B7770D;
-        }
-
-        /* Code block */
-        .code-block {
-            background: #1C1C1E;
-            color: #E5E5EA;
-            border-radius: var(--radius-sm);
-            padding: 11px 13px;
+        .result-url {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11.5px;
-            line-height: 1.7;
-            overflow-x: auto;
-            margin-top: 8px;
-        }
-
-        .code-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, .07);
-        }
-
-        .code-lbl {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: .7px;
-            color: #636366;
-            font-family: 'DM Sans', sans-serif;
-        }
-
-        .copy-btn {
-            background: rgba(255, 255, 255, .07);
-            border: none;
-            border-radius: 4px;
-            color: #8E8E93;
             font-size: 11px;
-            padding: 2px 8px;
+            color: var(--t3);
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ── Icon Buttons ── */
+        .icon-btn {
+            height: 30px;
+            padding: 0 12px;
+            border-radius: var(--rs);
+            border: 1px solid var(--border);
+            background: var(--surface);
             cursor: pointer;
             font-family: 'DM Sans', sans-serif;
-            transition: background .15s;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--t2);
+            transition: all .15s;
+            white-space: nowrap;
         }
 
-        .copy-btn:hover {
-            background: rgba(255, 255, 255, .15);
-            color: white;
+        .icon-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--adim);
         }
 
-        /* Table */
+        .icon-btn.green {
+            border-color: rgba(48, 209, 88, .3);
+            color: #1A7A3A;
+        }
+
+        .icon-btn.green:hover {
+            background: var(--gdim);
+            border-color: var(--green);
+        }
+
+        .icon-btn svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        /* ── Table ── */
         .tbl-wrap {
             overflow-x: auto;
-            margin-top: 8px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
+            max-height: calc(100vh - 300px);
         }
 
-        table.rtbl {
+        table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
+            font-size: 12.5px;
             font-family: 'JetBrains Mono', monospace;
             white-space: nowrap;
         }
 
-        table.rtbl th {
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        th {
             background: var(--accent);
             color: white;
-            padding: 7px 12px;
+            padding: 8px 14px;
             text-align: left;
             font-family: 'Syne', sans-serif;
             font-size: 10.5px;
@@ -548,143 +555,340 @@
             letter-spacing: .3px;
         }
 
-        table.rtbl td {
-            padding: 6px 12px;
+        th.actions-col {
+            background: var(--adark);
+            width: 80px;
+        }
+
+        td {
+            padding: 7px 14px;
             border-bottom: 1px solid var(--border);
-            color: var(--text-1);
-            max-width: 200px;
+            color: var(--t1);
+            max-width: 220px;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        table.rtbl tr:last-child td {
+        tr:last-child td {
             border-bottom: none;
         }
 
-        table.rtbl tr:nth-child(even) td {
-            background: var(--surface-2);
+        tr:nth-child(even) td {
+            background: var(--s2);
         }
 
-        table.rtbl tr:hover td {
-            background: var(--accent-dim);
+        tr:hover td {
+            background: var(--adim);
         }
 
-        /* Typing */
-        .typing {
+        td.actions-cell {
+            padding: 4px 8px;
             display: flex;
             gap: 4px;
             align-items: center;
-            padding: 2px 0;
         }
 
-        .typing span {
-            width: 5px;
-            height: 5px;
+        tr:hover td.actions-cell {
+            background: var(--adim);
+        }
+
+        .row-btn {
+            height: 24px;
+            padding: 0 8px;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            font-size: 11px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            transition: all .15s;
+        }
+
+        .row-btn.edit {
+            color: var(--accent);
+        }
+
+        .row-btn.edit:hover {
+            background: var(--adim);
+            border-color: var(--accent);
+        }
+
+        .row-btn.del {
+            color: var(--red);
+        }
+
+        .row-btn.del:hover {
+            background: var(--rdim);
+            border-color: var(--red);
+        }
+
+        /* raw JSON fallback */
+        .raw-out {
+            background: #1C1C1E;
+            color: #E5E5EA;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.7;
+            padding: 16px;
+            overflow-x: auto;
+            max-height: calc(100vh - 280px);
+        }
+
+        /* loading */
+        .loading {
+            padding: 40px;
+            text-align: center;
+            color: var(--t3);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
             border-radius: 50%;
-            background: var(--text-3);
-            animation: bounce .8s infinite ease-in-out;
+            animation: spin .7s linear infinite;
         }
 
-        .typing span:nth-child(2) {
-            animation-delay: .15s;
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
 
-        .typing span:nth-child(3) {
-            animation-delay: .30s;
+        /* ── Modal ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .35);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
         }
 
-        @keyframes bounce {
+        .modal-overlay.open {
+            display: flex;
+        }
 
-            0%,
-            80%,
-            100% {
-                transform: translateY(0);
-                opacity: .5;
+        .modal {
+            background: var(--surface);
+            border-radius: 14px;
+            width: 520px;
+            max-width: 95vw;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .18);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--s2);
+        }
+
+        .modal-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .modal-close {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--t2);
+            transition: all .15s;
+        }
+
+        .modal-close:hover {
+            background: var(--rdim);
+            color: var(--red);
+            border-color: var(--red);
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            background: var(--s2);
+        }
+
+        .modal-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .modal-field label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--t2);
+        }
+
+        .modal-field input {
+            background: var(--s2);
+            border: 1px solid var(--border);
+            border-radius: var(--rs);
+            padding: 8px 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--t1);
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        .modal-field input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, .1);
+        }
+
+        .modal-field input:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            background: var(--border);
+        }
+
+        .modal-field .key-badge {
+            font-size: 9px;
+            font-weight: 600;
+            padding: 1px 5px;
+            border-radius: 10px;
+            background: var(--adim);
+            color: var(--accent);
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        .f-btn {
+            height: 34px;
+            padding: 0 16px;
+            border-radius: var(--rs);
+            border: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all .15s;
+        }
+
+        .f-btn:active {
+            transform: scale(.97);
+        }
+
+        .f-btn-p {
+            background: var(--accent);
+            color: white;
+        }
+
+        .f-btn-p:hover {
+            background: var(--adark);
+        }
+
+        .f-btn-g {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--t2);
+        }
+
+        .f-btn-g:hover {
+            background: var(--bg);
+        }
+
+        .f-btn-r {
+            background: var(--red);
+            color: white;
+        }
+
+        .f-btn-r:hover {
+            background: #cc3530;
+        }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast-item {
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .15);
+            animation: slideIn .2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 220px;
+        }
+
+        .toast-ok {
+            background: #1A7A3A;
+            color: white;
+        }
+
+        .toast-err {
+            background: #C0392B;
+            color: white;
+        }
+
+        .toast-info {
+            background: var(--accent);
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(12px);
+                opacity: 0;
             }
 
-            40% {
-                transform: translateY(-5px);
+            to {
+                transform: translateY(0);
                 opacity: 1;
             }
-        }
-
-        /* Input bar */
-        .input-bar {
-            border-top: 1px solid var(--border);
-            background: var(--surface);
-            padding: 14px 22px;
-        }
-
-        .input-wrap {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 13px;
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            padding: 9px 12px;
-            transition: border-color .15s, box-shadow .15s;
-        }
-
-        .input-wrap:focus-within {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(10, 132, 255, .10);
-        }
-
-        #chatInput {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            color: var(--text-1);
-            resize: none;
-            max-height: 130px;
-            line-height: 1.5;
-        }
-
-        #chatInput::placeholder {
-            color: var(--text-3);
-        }
-
-        .send-btn {
-            width: 32px;
-            height: 32px;
-            background: var(--accent);
-            border: none;
-            border-radius: 8px;
-            display: grid;
-            place-items: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: background .15s, transform .1s;
-        }
-
-        .send-btn:hover {
-            background: var(--accent-dark);
-        }
-
-        .send-btn:active {
-            transform: scale(.92);
-        }
-
-        .send-btn:disabled {
-            background: var(--border);
-            cursor: not-allowed;
-        }
-
-        .send-btn svg {
-            fill: white;
-            width: 14px;
-            height: 14px;
-        }
-
-        .input-hint {
-            font-size: 11px;
-            color: var(--text-3);
-            margin-top: 6px;
-            text-align: center;
         }
 
         ::-webkit-scrollbar {
@@ -712,566 +916,563 @@
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                 </svg>
             </div>
-            SAP OData Agent
+            SAP OData Tool
         </div>
-        <div class="header-status">
-            <div class="status-item">
-                <span class="dot" id="dotOpenAI"></span>
-                <span id="lblOpenAI">OpenAI —</span>
-            </div>
-            <div class="status-item">
-                <span class="dot" id="dotSAP"></span>
-                <span id="lblSAP">SAP —</span>
-            </div>
+        <div class="conn-status">
+            <span class="dot" id="connDot"></span>
+            <span id="connLbl">Nicht verbunden</span>
         </div>
     </header>
 
-    <div class="app">
+    <div class="layout">
         <aside>
-
-            <!-- OpenAI -->
             <div class="card">
-                <div class="card-header">
-                    <span class="card-title">OpenAI</span>
-                    <span class="badge" id="modelBadge">gpt-4o-mini</span>
+                <div class="card-title">SAP Verbindung</div>
+                <div class="field"><label>Host</label><input id="sapHost" type="text" placeholder="http://host:8001" />
                 </div>
-                <div class="field">
-                    <label>API Key</label>
-                    <input type="password" id="openaiKey" placeholder="sk-..." />
+                <div class="field"><label>Client</label><input id="sapClient" type="text" placeholder="100" /></div>
+                <div class="field"><label>Benutzer</label><input id="sapUser" type="text" placeholder="BPUSER" /></div>
+                <div class="field"><label>Passwort</label><input id="sapPassword" type="password"
+                        placeholder="••••••••" /></div>
+                <div class="divider"></div>
+                <div class="field proxy-field">
+                    <label>Proxy-URL <span style="font-weight:400;color:var(--t3)">(optional, CORS)</span></label>
+                    <input id="sapProxy" type="text" placeholder="http://localhost:3000" />
+                    <div class="field-hint">Requests werden über diesen Proxy geleitet. Der Proxy muss <code
+                            style="font-family:monospace">/sap/opu/odata/sap/…</code> weiterleiten.</div>
                 </div>
-                <div class="field">
-                    <label>Modell</label>
-                    <select id="modelSelect">
-                        <option value="gpt-4o-mini">gpt-4o-mini</option>
-                        <option value="gpt-4o">gpt-4o</option>
-                        <option value="gpt-4-turbo">gpt-4-turbo</option>
-                    </select>
-                </div>
-                <button class="btn btn-primary" id="saveOpenAI">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                <button class="btn btn-p" id="saveBtn">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2.5">
                         <polyline points="20 6 9 17 4 12" />
                     </svg>
                     Speichern
                 </button>
+                <button class="btn btn-g" id="testBtn">Verbindung testen</button>
             </div>
 
-            <!-- SAP -->
             <div class="card">
-                <div class="card-header">
-                    <span class="card-title">SAP Verbindung</span>
-                    <span class="badge">Basic Auth</span>
+                <div class="card-title">CSRF Token</div>
+                <div style="font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:8px;">
+                    Für POST / PATCH / DELETE wird automatisch ein CSRF-Token geholt. Klicke bei Problemen auf „Token
+                    neu holen".
                 </div>
-                <div class="field">
-                    <label>Host</label>
-                    <input type="text" id="sapHost" placeholder="http://host:8001" />
+                <button class="btn btn-g" id="csrfBtn">Token neu holen</button>
+                <div id="csrfStatus"
+                    style="font-size:10px;color:var(--t3);margin-top:6px;font-family:monospace;word-break:break-all;">
                 </div>
-                <div class="field">
-                    <label>Client</label>
-                    <input type="text" id="sapClient" placeholder="100" />
-                </div>
-                <div class="field">
-                    <label>Benutzer</label>
-                    <input type="text" id="sapUser" placeholder="BPUSER" />
-                </div>
-                <div class="field">
-                    <label>Passwort</label>
-                    <input type="password" id="sapPassword" placeholder="••••••••" />
-                </div>
-                <div class="field">
-                    <label>OData Service <span class="lbadge">CHAT</span></label>
-                    <input type="text" id="odataService"
-                        placeholder="API_FOREIGNEXCHANGEEXPOSURE_SRV/ForeignExchangeExposure" />
-                    <div class="field-hint">Wird für alle Chat-Anfragen verwendet</div>
-                </div>
-                <button class="btn btn-primary" id="saveSAP">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2.5">
-                        <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    Speichern
-                </button>
-                <button class="btn btn-ghost" id="testSAP">Verbindung testen</button>
             </div>
-
-            <!-- Batch -->
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">Batch / CSV</span>
-                </div>
-                <div class="field">
-                    <label>CSV-Datei</label>
-                    <input type="file" id="csvFile" accept=".csv" />
-                </div>
-                <div id="csvPreview" class="csv-preview"></div>
-                <div class="field" style="margin-top:8px">
-                    <label>OData Entity <span class="lbadge">BATCH</span></label>
-                    <input type="text" id="batchEntity"
-                        placeholder="API_FOREIGNEXCHANGEEXPOSURE_SRV/ForeignExchangeExposure" />
-                    <div class="field-hint">Nur für CSV-Batch verwendet</div>
-                </div>
-                <div class="progress-wrap" id="progressWrap">
-                    <div class="progress-bar" id="progressBar"></div>
-                </div>
-                <button class="btn btn-primary" id="batchSend">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2.5">
-                        <polyline points="22 2 15 22 11 13 2 9 22 2" />
-                    </svg>
-                    Batch ausführen
-                </button>
-            </div>
-
         </aside>
 
         <main>
-            <div class="chat-area" id="chatArea">
-                <div class="welcome" id="welcomeMsg">
-                    <h2>SAP OData Agent</h2>
-                    <p>Beschreibe dein Anliegen in natürlicher Sprache — der Agent wandelt es in einen OData-Call um.
-                    </p>
-                    <div class="chips">
-                        <button class="chip" onclick="insertPrompt('Zeige mir alle FX Exposures')">📋 Alle Exposures
-                            anzeigen</button>
-                        <button class="chip" onclick="insertPrompt('Zeige alle FX Exposures mit CompanyCode 1000')">🔍
-                            Nach CompanyCode filtern</button>
-                        <button class="chip"
-                            onclick="insertPrompt('Lege eine neue FX Exposure an: CompanyCode 1000, RiskCurrency EUR, TargetCurrency USD, Amount 500000, Direction Inflow, ValidFrom 2025-01-01, DueDate 2025-12-31, ExposureType FXFWD')">➕
-                            FX Exposure anlegen</button>
-                        <button class="chip" onclick="insertPrompt('Zeige mir alle TRM Trades')">📊 TRM Trades
-                            abfragen</button>
-                    </div>
+            <div class="query-box">
+                <div class="query-box-header">
+                    <label>OData Abfrage</label>
+                    <span class="proxy-badge" id="proxyBadge" style="display:none">⇄ Proxy aktiv</span>
                 </div>
-            </div>
-
-            <div class="input-bar">
-                <div class="input-wrap">
-                    <textarea id="chatInput" rows="1"
-                        placeholder="Beschreibe einen SAP-Vorgang oder stelle eine Frage…"></textarea>
-                    <button class="send-btn" id="sendBtn">
+                <div class="query-row">
+                    <input id="queryInput" class="query-input" type="text"
+                        placeholder="A_TRSYPOSFLOW_CDS/A_TrsyPosFlow?$top=20" />
+                    <button class="run-btn" id="runBtn">
                         <svg viewBox="0 0 24 24">
-                            <path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z" />
+                            <path d="M5 3l14 9-14 9V3z" />
                         </svg>
+                        Ausführen
                     </button>
                 </div>
-                <div class="input-hint">Enter senden · Shift+Enter neue Zeile</div>
+                <div class="quick-label">Schnellzugriff:</div>
+                <div class="quick-list" id="quickList"></div>
+            </div>
+
+            <div class="result-panel" id="resultPanel">
+                <div class="result-header">
+                    <div class="result-meta">
+                        <span class="tag tag-ok" id="resultTag">0 Zeilen</span>
+                        <span class="result-url" id="resultUrl"></span>
+                    </div>
+                    <div class="result-actions" id="resultActions"></div>
+                </div>
+                <div id="resultBody"></div>
             </div>
         </main>
     </div>
 
+    <!-- ── CRUD Modal ── -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title" id="modalTitle">Datensatz</span>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer" id="modalFooter"></div>
+        </div>
+    </div>
+
+    <!-- ── Toast Container ── -->
+    <div class="toast" id="toastContainer"></div>
+
     <script>
-        /* ─── CONFIG / STORAGE ─── */
-        const STORAGE_KEY = 'sap_odata_agent_v3';
+        /* ════════════════════════════════════════════
+           STORAGE
+        ════════════════════════════════════════════ */
+        const KEY = 'sap_odata_tool_v3';
+        function loadStore() { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return {}; } }
+        function saveStore() { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch { } }
 
-        function loadCfg() {
-            try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
-            catch { return {}; }
-        }
-        function saveCfg() {
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); }
-            catch (e) { }
-        }
-
-        const saved = loadCfg();
+        const s = loadStore();
         const cfg = {
-            openaiKey: saved.openaiKey || '',
-            model: saved.model || 'gpt-4o-mini',
-            sapHost: saved.sapHost || '',
-            sapClient: saved.sapClient || '',
-            sapUser: saved.sapUser || '',
-            sapPass: saved.sapPass || '',
-            odataService: saved.odataService || '',
-            batchEntity: saved.batchEntity || '',
+            host: s.host || '',
+            client: s.client || '',
+            user: s.user || '',
+            pass: s.pass || '',
+            proxy: s.proxy || '',
+            queries: dedup(s.queries || [
+                'A_TRSYPOSFLOW_CDS/A_TrsyPosFlow?$top=20',
+                'API_FOREIGNEXCHANGEEXPOSURE_SRV/ForeignExchangeExposure?$top=20',
+            ])
         };
 
-        /* ─── Restore all fields on page load ─── */
-        (function restoreFields() {
-            document.getElementById('openaiKey').value = cfg.openaiKey;
-            document.getElementById('modelSelect').value = cfg.model;
-            document.getElementById('sapHost').value = cfg.sapHost;
-            document.getElementById('sapClient').value = cfg.sapClient;
-            document.getElementById('sapUser').value = cfg.sapUser;
-            document.getElementById('sapPassword').value = cfg.sapPass;
-            document.getElementById('odataService').value = cfg.odataService;
-            document.getElementById('batchEntity').value = cfg.batchEntity;
-            document.getElementById('modelBadge').textContent = cfg.model;
-            if (cfg.openaiKey) setDot('dotOpenAI', 'lblOpenAI', 'ok', 'OpenAI ✓');
-            if (cfg.sapHost || cfg.sapUser) setDot('dotSAP', 'lblSAP', 'warn', 'SAP ✓');
-        })();
+        /* State */
+        let currentRows = [];
+        let currentCols = [];
+        let currentService = '';   // z.B. "A_TRSYPOSFLOW_CDS"
+        let currentEntity = '';   // z.B. "A_TrsyPosFlow"
+        let csrfToken = null;
+        let lastUrl = '';
 
-        /* ─── Auto-save on every keystroke ─── */
-        function bind(id, fn) {
+        /* ════════════════════════════════════════════
+           INIT
+        ════════════════════════════════════════════ */
+        document.getElementById('sapHost').value = cfg.host;
+        document.getElementById('sapClient').value = cfg.client;
+        document.getElementById('sapUser').value = cfg.user;
+        document.getElementById('sapPassword').value = cfg.pass;
+        document.getElementById('sapProxy').value = cfg.proxy;
+        updateProxyBadge();
+        if (cfg.host) setDot('warn', cfg.host);
+
+        function bindField(id, fn) {
             const el = document.getElementById(id);
-            if (el) el.addEventListener('input', () => { fn(el.value); saveCfg(); });
+            el.addEventListener('input', () => { fn(el.value); saveStore(); });
         }
-        bind('openaiKey', v => cfg.openaiKey = v.trim());
-        bind('modelSelect', v => { cfg.model = v; document.getElementById('modelBadge').textContent = v; });
-        bind('sapHost', v => cfg.sapHost = v.trim().replace(/\/$/, ''));
-        bind('sapClient', v => cfg.sapClient = v.trim());
-        bind('sapUser', v => cfg.sapUser = v.trim());
-        bind('sapPassword', v => cfg.sapPass = v);          /* no trim for passwords */
-        bind('odataService', v => cfg.odataService = v.trim());
-        bind('batchEntity', v => cfg.batchEntity = v.trim());
+        bindField('sapHost', v => { cfg.host = v.trim().replace(/\/$/, ''); });
+        bindField('sapClient', v => { cfg.client = v.trim(); });
+        bindField('sapUser', v => { cfg.user = v.trim(); });
+        bindField('sapPassword', v => { cfg.pass = v; });
+        bindField('sapProxy', v => { cfg.proxy = v.trim().replace(/\/$/, ''); updateProxyBadge(); });
 
-        /* ─── Save buttons (confirm + status) ─── */
-        document.getElementById('saveOpenAI').addEventListener('click', () => {
-            saveCfg();
-            if (cfg.openaiKey) {
-                setDot('dotOpenAI', 'lblOpenAI', 'ok', 'OpenAI ✓');
-                sysMsg('OpenAI gespeichert.', 'ok');
-            } else {
-                sysMsg('Kein API Key eingegeben.', 'warn');
-            }
-        });
+        function updateProxyBadge() {
+            document.getElementById('proxyBadge').style.display = cfg.proxy ? 'inline-flex' : 'none';
+        }
 
-        document.getElementById('saveSAP').addEventListener('click', () => {
-            saveCfg();
-            if (cfg.sapHost || cfg.sapUser) {
-                setDot('dotSAP', 'lblSAP', 'warn', 'SAP ✓');
-                sysMsg('SAP-Verbindung gespeichert.<br>'
-                    + '<b>Host:</b> ' + (cfg.sapHost || '—')
-                    + ' &nbsp;<b>User:</b> ' + (cfg.sapUser || '—')
-                    + ' &nbsp;<b>Service:</b> ' + (cfg.odataService || '—'), 'ok');
-            } else {
-                sysMsg('Bitte mindestens Host oder Benutzer angeben.', 'warn');
-            }
-        });
+        document.getElementById('saveBtn').addEventListener('click', () => { saveStore(); setDot('warn', cfg.host || '—'); });
 
-        document.getElementById('testSAP').addEventListener('click', async () => {
-            if (!cfg.sapHost) { sysMsg('SAP Host ist leer.', 'warn'); return; }
-            sysMsg('Teste Verbindung…', 'info');
+        /* ════════════════════════════════════════════
+           CONNECTION TEST
+        ════════════════════════════════════════════ */
+        document.getElementById('testBtn').addEventListener('click', async () => {
+            if (!cfg.host && !cfg.proxy) { alert('Bitte Host eintragen.'); return; }
+            setDot('warn', 'Teste…');
             try {
-                const url = cfg.sapHost + '/sap/opu/odata/sap/?sap-client=' + encodeURIComponent(cfg.sapClient) + '&$format=json';
-                const res = await fetch(url, {
-                    headers: { 'Authorization': 'Basic ' + btoa(cfg.sapUser + ':' + cfg.sapPass) }
-                });
-                if (res.ok || res.status === 401) {
-                    setDot('dotSAP', 'lblSAP', 'ok', 'SAP ✓');
-                    sysMsg('SAP erreichbar — HTTP ' + res.status, 'ok');
+                const base = cfg.proxy || cfg.host;
+                const url = base + '/sap/opu/odata/sap/?sap-client=' + enc(cfg.client)
+                    + '&$format=json&sap-user=' + enc(cfg.user) + '&sap-password=' + enc(cfg.pass);
+                const res = await fetch(url);
+                setDot(res.ok || res.status === 401 ? 'ok' : 'warn',
+                    (cfg.proxy ? 'Proxy · ' : '') + 'HTTP ' + res.status);
+            } catch (e) { setDot('', 'Fehler: ' + e.message); }
+        });
+
+        /* ════════════════════════════════════════════
+           CSRF TOKEN
+        ════════════════════════════════════════════ */
+        document.getElementById('csrfBtn').addEventListener('click', () => fetchCsrfToken(true));
+
+        async function fetchCsrfToken(manual = false) {
+            const base = cfg.proxy || cfg.host;
+            const service = currentService || (cfg.queries[0] || '').split('/')[0];
+            if (!base || !service) { if (manual) toast('Host & Service benötigt', 'err'); return; }
+            const url = base + '/sap/opu/odata/sap/' + service + '/' + authParams();
+            try {
+                const res = await fetch(url, { headers: { 'X-CSRF-Token': 'Fetch', 'Accept': 'application/json' } });
+                const tok = res.headers.get('X-CSRF-Token') || res.headers.get('x-csrf-token');
+                if (tok && tok !== 'Required') {
+                    csrfToken = tok;
+                    document.getElementById('csrfStatus').textContent = '✓ ' + tok.slice(0, 32) + (tok.length > 32 ? '…' : '');
+                    if (manual) toast('CSRF-Token geholt', 'ok');
                 } else {
-                    sysMsg('SAP antwortet: HTTP ' + res.status, 'warn');
+                    if (manual) toast('Kein Token erhalten (Header leer)', 'err');
                 }
-            } catch (e) {
-                sysMsg('Nicht erreichbar: ' + e.message
-                    + '<br><small>Prüfe CORS (ICM-Parameter) oder nutze einen lokalen CORS-Proxy.</small>', 'err');
-            }
-        });
+            } catch (e) { if (manual) toast('Token-Fehler: ' + e.message, 'err'); }
+        }
 
-        /* ─── CSV ─── */
-        let csvData = [];
-        document.getElementById('csvFile').addEventListener('change', e => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = ev => {
-                const text = ev.target.result;
-                csvData = parseCSV(text);
-                const pre = document.getElementById('csvPreview');
-                pre.style.display = 'block';
-                pre.textContent = text.slice(0, 250) + (text.length > 250 ? '…' : '');
-                sysMsg('<b>' + esc(file.name) + '</b> geladen — ' + csvData.length + ' Datensätze.', 'info');
-            };
-            reader.readAsText(file);
-        });
+        /* ════════════════════════════════════════════
+           QUICK LIST
+        ════════════════════════════════════════════ */
+        function renderQuickList() {
+            const el = document.getElementById('quickList');
+            el.innerHTML = cfg.queries.map((q, i) =>
+                `<span class="quick-item" onclick="useQuery(${i})">
+            ${esc(q)}
+            <button class="del-btn" title="Entfernen" onclick="removeQuery(event,${i})">✕</button>
+        </span>`
+            ).join('');
+        }
+        renderQuickList();
 
-        /* ─── Batch ─── */
-        document.getElementById('batchSend').addEventListener('click', async () => {
-            if (!cfg.sapHost || !cfg.sapUser) { sysMsg('SAP-Verbindung nicht konfiguriert.', 'warn'); return; }
-            if (!csvData.length) { sysMsg('Keine CSV-Daten geladen.', 'warn'); return; }
-            if (!cfg.batchEntity) { sysMsg('Batch-Entity ist leer.', 'warn'); return; }
-            const wrap = document.getElementById('progressWrap');
-            const bar = document.getElementById('progressBar');
-            wrap.style.display = 'block';
-            sysMsg('Batch gestartet: <b>' + csvData.length + ' Datensätze</b> → <code>' + esc(cfg.batchEntity) + '</code>', 'info');
-            let ok = 0, fail = 0;
-            for (let i = 0; i < csvData.length; i++) {
-                bar.style.width = Math.round(((i + 1) / csvData.length) * 100) + '%';
-                try { await odataCall(cfg.batchEntity, 'POST', csvData[i], ''); ok++; }
-                catch { fail++; }
-            }
-            wrap.style.display = 'none';
-            bar.style.width = '0%';
-            sysMsg('Batch abgeschlossen: <span class="tag tag-ok">' + ok + ' OK</span> <span class="tag tag-err">' + fail + ' Fehler</span>', 'ok');
-        });
+        function useQuery(i) { document.getElementById('queryInput').value = cfg.queries[i]; runQuery(); }
+        function removeQuery(e, i) { e.stopPropagation(); cfg.queries.splice(i, 1); saveStore(); renderQuickList(); }
 
-        /* ─── CHAT ─── */
-        const chatArea = document.getElementById('chatArea');
-        const chatInput = document.getElementById('chatInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const welcomeMsg = document.getElementById('welcomeMsg');
-        let busy = false;
+        /* ════════════════════════════════════════════
+           RUN QUERY (GET)
+        ════════════════════════════════════════════ */
+        document.getElementById('runBtn').addEventListener('click', runQuery);
+        document.getElementById('queryInput').addEventListener('keydown', e => { if (e.key === 'Enter') runQuery(); });
 
-        chatInput.addEventListener('input', () => {
-            chatInput.style.height = 'auto';
-            chatInput.style.height = Math.min(chatInput.scrollHeight, 130) + 'px';
-        });
-        chatInput.addEventListener('keydown', e => {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-        });
-        sendBtn.addEventListener('click', handleSend);
+        async function runQuery() {
+            const raw = document.getElementById('queryInput').value.trim();
+            if (!raw) return;
+            if (!cfg.host && !cfg.proxy) { alert('Bitte SAP Host oder Proxy eintragen.'); return; }
 
-        async function handleSend() {
-            const text = chatInput.value.trim();
-            if (!text || busy) return;
-            if (!cfg.openaiKey) { sysMsg('Bitte OpenAI API Key speichern.', 'warn'); return; }
-            if (!cfg.sapHost) { sysMsg('Bitte SAP Host konfigurieren.', 'warn'); return; }
+            /* Dedup Quick-List */
+            cfg.queries = cfg.queries.filter(q => q !== raw);
+            cfg.queries.unshift(raw);
+            if (cfg.queries.length > 8) cfg.queries.pop();
+            saveStore(); renderQuickList();
 
-            welcomeMsg.style.display = 'none';
-            addUserMsg(text);
-            chatInput.value = '';
-            chatInput.style.height = 'auto';
-            busy = true;
-            sendBtn.disabled = true;
+            /* Parse service & entity from query  e.g. "MySrv/MyEntity?..." */
+            const [svcEnt] = raw.split('?');
+            const parts = svcEnt.split('/');
+            currentService = parts[0] || '';
+            currentEntity = parts[1] || '';
 
-            const typingEl = addTyping();
+            const base = cfg.proxy || cfg.host;
+            const sep = raw.includes('?') ? '&' : '?';
+            const url = base + '/sap/opu/odata/sap/' + raw + sep + '$format=json' + authParams(true);
+            lastUrl = url;
+
+            showLoading(url);
+            fetchCsrfToken();   /* Hol Token im Hintergrund */
 
             try {
-                /* 1. Ask LLM */
-                const call = await callOpenAI(text);
-                typingEl.remove();
-
-                const method = (call.method || 'GET').toUpperCase();
-                const entity = call.entity || cfg.odataService || '';
-                const filter = call.filter || '';
-                const data = Array.isArray(call.data) ? call.data : [];
-
-                /* Show intent */
-                addBotMsg(
-                    '<div style="margin-bottom:8px">Befehl erkannt — rufe OData API auf:</div>'
-                    + '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">'
-                    + '<span class="tag tag-info">Entity: ' + esc(entity || '?') + '</span>'
-                    + '<span class="tag tag-warn">Methode: ' + method + '</span>'
-                    + (data.length ? '<span class="tag tag-info">' + data.length + ' Datensätze</span>' : '')
-                    + (filter ? '<span class="tag tag-info">Filter: ' + esc(filter) + '</span>' : '')
-                    + '</div>'
-                    + '<div class="code-block">'
-                    + '<div class="code-top"><span class="code-lbl">Payload</span><button class="copy-btn" onclick="copyCode(this)">Kopieren</button></div>'
-                    + '<div>' + esc(JSON.stringify(call, null, 2)) + '</div>'
-                    + '</div>'
-                );
-
-                if (!entity) {
-                    addBotMsg('<span class="tag tag-err">❌</span> Kein OData Service konfiguriert. Bitte in der Sidebar eintragen.');
-                } else if (method === 'GET') {
-                    const result = await odataCall(entity, 'GET', null, filter);
-                    addBotMsg(renderResult(result));
-                } else if (data.length) {
-                    for (const rec of data) {
-                        const result = await odataCall(entity, method, rec, '');
-                        addBotMsg(renderResult(result));
-                    }
-                } else {
-                    const result = await odataCall(entity, method, null, '');
-                    addBotMsg(renderResult(result));
-                }
-
-            } catch (e) {
-                typingEl.remove();
-                addBotMsg('<span class="tag tag-err">❌ Fehler</span> ' + esc(e.message));
-            }
-
-            busy = false;
-            sendBtn.disabled = false;
-            scrollDown();
+                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                const text = await res.text();
+                if (!res.ok) { showError('HTTP ' + res.status, text.slice(0, 600), url); return; }
+                let json;
+                try { json = JSON.parse(text); } catch { showRaw(text, url); return; }
+                showTable(json, url);
+            } catch (e) { showError('Netzwerkfehler', e.message, url); }
         }
 
-        /* ─── OPENAI ─── */
-        async function callOpenAI(userText) {
-            const serviceHint = cfg.odataService
-                ? 'Konfigurierter OData Service: "' + cfg.odataService + '". Nutze diesen als entity-Wert wenn der Nutzer keinen anderen nennt.'
-                : 'Kein OData Service konfiguriert. Bitte fragen.';
-
-            const res = await fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + cfg.openaiKey
-                },
-                body: JSON.stringify({
-                    model: cfg.model,
-                    messages: [
-                        {
-                            role: 'system',
-                            content: [
-                                'Du bist ein SAP OData API-Experte. Antworte IMMER nur mit dem Funktionsaufruf sap_odata_call, niemals mit reinem Text.',
-                                serviceHint,
-                                'Bei GET: data = []. Bei POST/PATCH: data = Array mit mindestens einem Objekt mit allen genannten Feldern.',
-                                'FX Exposure Felder: FXExposureType, CompanyCode, Portfolio, FXExposureValidFromDate (YYYY-MM-DD), FXExposureDueDate (YYYY-MM-DD), FXExposureAmountInRiskCurrency, FXExposureRiskCurrency, FXExposureTargetCurrency, FXExposureDirection (1=Inflow 2=Outflow), FXExposureExternalID.',
-                                'TRM Trade Felder: CompanyCode, PartnerPortfolio, TransType, Product, CurrPair, Amount1, Amount2, ValueDate, MaturityDate, CounterParty.',
-                                'Fehlende ExternalIDs automatisch generieren.'
-                            ].join(' ')
-                        },
-                        { role: 'user', content: userText }
-                    ],
-                    tools: [{
-                        type: 'function',
-                        function: {
-                            name: 'sap_odata_call',
-                            description: 'SAP OData API aufrufen',
-                            parameters: {
-                                type: 'object',
-                                properties: {
-                                    entity: { type: 'string', description: 'OData Service/EntitySet' },
-                                    method: { type: 'string', enum: ['GET', 'POST', 'PATCH', 'DELETE'] },
-                                    filter: { type: 'string', description: 'OData $filter Ausdruck (nur bei GET)' },
-                                    data: { type: 'array', description: 'Datensätze für POST/PATCH. Bei GET: []', items: { type: 'object' } }
-                                },
-                                required: ['entity', 'method', 'data']
-                            }
-                        }
-                    }],
-                    tool_choice: { type: 'function', function: { name: 'sap_odata_call' } }
-                })
-            });
-
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                throw new Error(err?.error?.message || 'OpenAI HTTP ' + res.status);
-            }
-
-            const json = await res.json();
-            const msg = json.choices[0].message;
-
-            if (msg.tool_calls && msg.tool_calls.length) {
-                return JSON.parse(msg.tool_calls[0].function.arguments);
-            }
-            throw new Error('Kein Funktionsaufruf erhalten.');
+        /* ════════════════════════════════════════════
+           DISPLAY
+        ════════════════════════════════════════════ */
+        function showLoading(url) {
+            const panel = document.getElementById('resultPanel');
+            panel.style.display = 'block';
+            setResultHeader('tag-info', 'Lädt…', url, false);
+            document.getElementById('resultBody').innerHTML = '<div class="loading"><div class="spinner"></div> Anfrage läuft…</div>';
         }
 
-        /* ─── ODATA ─── */
-        async function odataCall(entityPath, method, data, filter) {
-            const base = cfg.sapHost.replace(/\/$/, '');
-
-            /* Build query string manually — URLSearchParams encodes '$' to '%24' which SAP rejects */
-            const qparts = ['$format=json'];
-            if (cfg.sapClient) qparts.push('sap-client=' + encodeURIComponent(cfg.sapClient));
-            if (method === 'GET' && filter) qparts.push('$filter=' + encodeURIComponent(filter));
-
-            const url = base + '/sap/opu/odata/sap/' + entityPath + '?' + qparts.join('&');
-
-            /* Use standard Basic Auth header — CORS extension handles the preflight */
-            const headers = {
-                'Accept': 'application/json',
-                'Authorization': 'Basic ' + btoa(cfg.sapUser + ':' + cfg.sapPass)
-            };
-            const opts = { method, headers };
-
-            if (method !== 'GET' && data) {
-                headers['Content-Type'] = 'application/json';
-                opts.body = JSON.stringify(data);
-            }
-
-            const res = await fetch(url, opts);
-
-            if (!res.ok) {
-                const errText = await res.text().catch(() => '');
-                throw new Error('HTTP ' + res.status + ' — ' + errText.slice(0, 300));
-            }
-
-            const text = await res.text();
-            return text ? JSON.parse(text) : { status: res.status, ok: true };
-        }
-
-        /* ─── RENDER ─── */
-        function renderResult(result) {
+        function showTable(json, url) {
             let rows = null;
-            if (Array.isArray(result?.d?.results)) rows = result.d.results;
-            else if (Array.isArray(result?.value)) rows = result.value;
-            else if (result?.d && typeof result.d === 'object') rows = [result.d];
+            if (Array.isArray(json?.d?.results)) rows = json.d.results;
+            else if (Array.isArray(json?.value)) rows = json.value;
+            else if (json?.d && typeof json.d === 'object') rows = [json.d];
 
             if (rows && rows.length > 0) {
-                const cols = Object.keys(rows[0]).filter(k => k !== '__metadata');
-                const thead = cols.map(c => '<th>' + esc(c) + '</th>').join('');
-                const tbody = rows.map(r =>
-                    '<tr>' + cols.map(c => '<td title="' + esc(String(r[c] ?? '')) + '">' + esc(String(r[c] ?? '')) + '</td>').join('') + '</tr>'
-                ).join('');
-                return '<span class="tag tag-ok">✓ ' + rows.length + ' Datensatz' + (rows.length !== 1 ? 'e' : '') + '</span>'
-                    + '<div class="tbl-wrap"><table class="rtbl"><thead><tr>' + thead + '</tr></thead><tbody>' + tbody + '</tbody></table></div>';
-            }
+                currentRows = rows;
+                currentCols = Object.keys(rows[0]).filter(k => k !== '__metadata');
 
-            return '<span class="tag tag-ok">✓ Response</span>'
-                + '<div class="code-block"><div class="code-top"><span class="code-lbl">API Response</span>'
-                + '<button class="copy-btn" onclick="copyCode(this)">Kopieren</button></div>'
-                + '<div>' + esc(JSON.stringify(result, null, 2)) + '</div></div>';
+                const thead = '<tr>' + currentCols.map(c => '<th>' + esc(c) + '</th>').join('') + '<th class="actions-col">Aktionen</th></tr>';
+                const tbody = rows.map((r, ri) =>
+                    '<tr>' +
+                    currentCols.map(c => `<td title="${esc(str(r[c]))}">${esc(str(r[c]))}</td>`).join('') +
+                    `<td class="actions-cell">
+                <button class="row-btn edit" onclick="openEdit(${ri})">✏</button>
+                <button class="row-btn del"  onclick="confirmDelete(${ri})">🗑</button>
+            </td></tr>`
+                ).join('');
+
+                setResultHeader('tag-ok', rows.length + ' Datensatz' + (rows.length !== 1 ? 'e' : ''), url, true);
+                document.getElementById('resultBody').innerHTML =
+                    '<div class="tbl-wrap"><table><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table></div>';
+            } else {
+                currentRows = []; currentCols = [];
+                showRaw(JSON.stringify(json, null, 2), url);
+            }
         }
 
-        /* ─── CSV ─── */
-        function parseCSV(text) {
-            const lines = text.trim().split('\n').filter(Boolean);
-            if (lines.length < 2) return [];
-            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-            return lines.slice(1).map(line => {
-                const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+        function setResultHeader(tagClass, tagText, url, withActions) {
+            document.getElementById('resultTag').className = 'tag ' + tagClass;
+            document.getElementById('resultTag').textContent = tagText;
+            document.getElementById('resultUrl').textContent = url;
+            document.getElementById('resultPanel').style.display = 'block';
+
+            const actEl = document.getElementById('resultActions');
+            if (withActions) {
+                actEl.innerHTML = `
+            <button class="icon-btn green" onclick="openCreate()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Neu anlegen
+            </button>
+            <button class="icon-btn" onclick="exportExcel()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                Excel Export
+            </button>`;
+            } else { actEl.innerHTML = ''; }
+        }
+
+        function showRaw(text, url) {
+            setResultHeader('tag-info', 'Raw Response', url, false);
+            document.getElementById('resultBody').innerHTML = '<pre class="raw-out">' + esc(text) + '</pre>';
+        }
+
+        function showError(label, detail, url) {
+            setResultHeader('tag-err', label, url, false);
+            document.getElementById('resultBody').innerHTML = '<pre class="raw-out" style="color:#FF6B6B">' + esc(detail) + '</pre>';
+        }
+
+        /* ════════════════════════════════════════════
+           EXCEL EXPORT
+        ════════════════════════════════════════════ */
+        function exportExcel() {
+            if (!currentRows.length) { toast('Keine Daten zum Exportieren', 'err'); return; }
+            const data = currentRows.map(r => {
                 const obj = {};
-                headers.forEach((h, i) => { obj[h] = vals[i] ?? ''; });
+                currentCols.forEach(c => { obj[c] = str(r[c]); });
                 return obj;
             });
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, currentEntity || 'Daten');
+
+            /* Auto-Spaltenbreite */
+            const maxW = currentCols.map(c => Math.min(40, Math.max(c.length, ...data.map(r => str(r[c]).length))));
+            ws['!cols'] = maxW.map(w => ({ wch: w + 2 }));
+
+            const fname = (currentEntity || 'export') + '_' + new Date().toISOString().slice(0, 10) + '.xlsx';
+            XLSX.writeFile(wb, fname);
+            toast('Excel gespeichert: ' + fname, 'ok');
         }
 
-        /* ─── UI HELPERS ─── */
-        function addUserMsg(text) {
-            const el = el2('div', 'msg user');
-            el.innerHTML = '<div class="avatar u">L</div><div class="bubble">' + esc(text) + '</div>';
-            chatArea.appendChild(el);
-            scrollDown();
+        /* ════════════════════════════════════════════
+           CRUD — HELPER
+        ════════════════════════════════════════════ */
+        function entityUri(row) {
+            /* SAP liefert __metadata.uri z.B.  http://host/sap/opu/odata/sap/SRV/Entity(Key='val') */
+            if (row.__metadata?.uri) {
+                const base = cfg.proxy || cfg.host;
+                /* Ersetze Host in der URI durch Proxy wenn nötig */
+                return row.__metadata.uri.replace(/^https?:\/\/[^/]+/, base);
+            }
+            return null;
         }
 
-        function addBotMsg(html) {
-            const el = el2('div', 'msg bot');
-            el.innerHTML = '<div class="avatar b">⚡</div><div class="bubble">' + html + '</div>';
-            chatArea.appendChild(el);
-            scrollDown();
-            return el;
+        function authParams(leadAmp = false) {
+            let p = '';
+            if (cfg.client) p += '&sap-client=' + enc(cfg.client);
+            if (cfg.user) p += '&sap-user=' + enc(cfg.user);
+            if (cfg.pass) p += '&sap-password=' + enc(cfg.pass);
+            return leadAmp ? p : p.slice(1);
         }
 
-        function sysMsg(html, type) {
-            const cls = { ok: 'tag-ok', err: 'tag-err', info: 'tag-info', warn: 'tag-warn' }[type] || 'tag-info';
-            const label = { ok: 'OK', err: 'FEHLER', info: 'INFO', warn: 'HINWEIS' }[type] || 'INFO';
-            welcomeMsg.style.display = 'none';
-            return addBotMsg('<span class="tag ' + cls + '">' + label + '</span> ' + html);
+        async function ensureCsrfToken() {
+            if (csrfToken) return csrfToken;
+            await fetchCsrfToken();
+            return csrfToken;
         }
 
-        function addTyping() {
-            const el = el2('div', 'msg bot');
-            el.innerHTML = '<div class="avatar b">⚡</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>';
-            chatArea.appendChild(el);
-            scrollDown();
-            return el;
+        function writeHeaders() {
+            return {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken || ''
+            };
         }
 
-        function el2(tag, cls) {
-            const el = document.createElement(tag);
-            el.className = cls;
-            return el;
+        /* ════════════════════════════════════════════
+           MODAL
+        ════════════════════════════════════════════ */
+        function openModal(title, bodyHtml, footerHtml) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = bodyHtml;
+            document.getElementById('modalFooter').innerHTML = footerHtml;
+            document.getElementById('modalOverlay').classList.add('open');
+        }
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('open');
+        }
+        document.getElementById('modalOverlay').addEventListener('click', e => {
+            if (e.target === document.getElementById('modalOverlay')) closeModal();
+        });
+
+        /* ── CREATE ── */
+        function openCreate() {
+            if (!currentCols.length) { toast('Erst eine GET-Abfrage ausführen', 'err'); return; }
+            const fields = currentCols.map(c =>
+                `<div class="modal-field">
+            <label>${esc(c)}</label>
+            <input id="mf_${esc(c)}" type="text" value="" />
+        </div>`
+            ).join('');
+
+            openModal('Neuen Datensatz anlegen', fields,
+                `<button class="f-btn f-btn-g" onclick="closeModal()">Abbrechen</button>
+         <button class="f-btn f-btn-p" onclick="doCreate()">Anlegen</button>`);
         }
 
-        function setDot(dotId, lblId, state, label) {
-            document.getElementById(dotId).className = 'dot' + (state ? ' ' + state : '');
-            document.getElementById(lblId).textContent = label;
-        }
-
-        function scrollDown() { chatArea.scrollTop = chatArea.scrollHeight; }
-
-        function esc(s) {
-            return String(s)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
-
-        function insertPrompt(text) {
-            chatInput.value = text;
-            chatInput.dispatchEvent(new Event('input'));
-            chatInput.focus();
-        }
-
-        function copyCode(btn) {
-            const code = btn.closest('.code-block').querySelector('div:last-child');
-            navigator.clipboard.writeText(code.textContent).then(() => {
-                btn.textContent = '✓ Kopiert';
-                setTimeout(() => btn.textContent = 'Kopieren', 1500);
+        async function doCreate() {
+            const payload = {};
+            currentCols.forEach(c => {
+                const el = document.getElementById('mf_' + c);
+                if (el) payload[c] = el.value;
             });
+            const base = cfg.proxy || cfg.host;
+            const url = base + '/sap/opu/odata/sap/' + currentService + '/' + currentEntity
+                + '?' + '$format=json&' + authParams();
+
+            await ensureCsrfToken();
+            try {
+                const res = await fetch(url, { method: 'POST', headers: writeHeaders(), body: JSON.stringify(payload) });
+                if (res.ok || res.status === 201) {
+                    toast('Datensatz angelegt ✓', 'ok');
+                    closeModal();
+                    runQuery();
+                } else {
+                    const t = await res.text();
+                    toast('Fehler ' + res.status + ': ' + t.slice(0, 120), 'err');
+                }
+            } catch (e) { toast('Netzwerkfehler: ' + e.message, 'err'); }
+        }
+
+        /* ── EDIT / PATCH ── */
+        function openEdit(ri) {
+            const row = currentRows[ri];
+            const uri = entityUri(row);
+            if (!uri) { toast('Kein __metadata.uri – PATCH nicht möglich', 'err'); return; }
+
+            /* Key-Felder erkennen: stehen im URI z.B. (Field1='v1',Field2='v2') */
+            const keyMatch = uri.match(/\(([^)]+)\)$/);
+            const keyNames = new Set();
+            if (keyMatch) {
+                keyMatch[1].split(',').forEach(kv => {
+                    const n = kv.split('=')[0].trim();
+                    if (n) keyNames.add(n);
+                });
+            }
+
+            const fields = currentCols.map(c => {
+                const isKey = keyNames.has(c);
+                return `<div class="modal-field">
+            <label>${esc(c)}${isKey ? '<span class="key-badge">KEY</span>' : ''}</label>
+            <input id="mf_${esc(c)}" type="text" value="${esc(str(row[c]))}" ${isKey ? 'disabled' : ''} />
+        </div>`;
+            }).join('');
+
+            openModal('Datensatz bearbeiten', fields,
+                `<button class="f-btn f-btn-g" onclick="closeModal()">Abbrechen</button>
+         <button class="f-btn f-btn-p" onclick="doPatch(${ri})">Speichern</button>`);
+        }
+
+        async function doPatch(ri) {
+            const row = currentRows[ri];
+            const uri = entityUri(row);
+            if (!uri) return;
+
+            const keyMatch = uri.match(/\(([^)]+)\)$/);
+            const keyNames = new Set();
+            if (keyMatch) keyMatch[1].split(',').forEach(kv => { const n = kv.split('=')[0].trim(); if (n) keyNames.add(n); });
+
+            const payload = {};
+            currentCols.forEach(c => {
+                if (keyNames.has(c)) return;   /* Key-Felder nicht patchen */
+                const el = document.getElementById('mf_' + c);
+                if (el && !el.disabled) payload[c] = el.value;
+            });
+
+            const url = uri + '?' + '$format=json&' + authParams();
+            await ensureCsrfToken();
+            try {
+                const res = await fetch(url, { method: 'PATCH', headers: writeHeaders(), body: JSON.stringify(payload) });
+                if (res.ok || res.status === 204) {
+                    toast('Gespeichert ✓', 'ok');
+                    closeModal();
+                    runQuery();
+                } else {
+                    const t = await res.text();
+                    toast('Fehler ' + res.status + ': ' + t.slice(0, 120), 'err');
+                }
+            } catch (e) { toast('Netzwerkfehler: ' + e.message, 'err'); }
+        }
+
+        /* ── DELETE ── */
+        function confirmDelete(ri) {
+            const row = currentRows[ri];
+            const uri = entityUri(row);
+            if (!uri) { toast('Kein __metadata.uri – DELETE nicht möglich', 'err'); return; }
+
+            const keyMatch = uri.match(/\(([^)]+)\)$/);
+            const keyInfo = keyMatch ? keyMatch[1] : '?';
+
+            openModal('Datensatz löschen',
+                `<div style="font-size:14px;line-height:1.6;color:var(--t1)">
+            Datensatz wirklich löschen?<br>
+            <code style="font-family:monospace;font-size:12px;color:var(--red)">${esc(keyInfo)}</code>
+         </div>`,
+                `<button class="f-btn f-btn-g" onclick="closeModal()">Abbrechen</button>
+         <button class="f-btn f-btn-r" onclick="doDelete(${ri})">Löschen</button>`);
+        }
+
+        async function doDelete(ri) {
+            const row = currentRows[ri];
+            const uri = entityUri(row);
+            if (!uri) return;
+            const url = uri + '?' + authParams();
+            await ensureCsrfToken();
+            try {
+                const res = await fetch(url, { method: 'DELETE', headers: writeHeaders() });
+                if (res.ok || res.status === 204) {
+                    toast('Gelöscht ✓', 'ok');
+                    closeModal();
+                    runQuery();
+                } else {
+                    const t = await res.text();
+                    toast('Fehler ' + res.status + ': ' + t.slice(0, 120), 'err');
+                }
+            } catch (e) { toast('Netzwerkfehler: ' + e.message, 'err'); }
+        }
+
+        /* ════════════════════════════════════════════
+           TOAST
+        ════════════════════════════════════════════ */
+        function toast(msg, type = 'info') {
+            const c = document.getElementById('toastContainer');
+            const el = document.createElement('div');
+            el.className = 'toast-item toast-' + type;
+            el.textContent = msg;
+            c.appendChild(el);
+            setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 350); }, 3000);
+        }
+
+        /* ════════════════════════════════════════════
+           HELPERS
+        ════════════════════════════════════════════ */
+        function setDot(state, label) {
+            document.getElementById('connDot').className = 'dot' + (state ? ' ' + state : '');
+            document.getElementById('connLbl').textContent = label;
+        }
+
+        function dedup(arr) {
+            const seen = new Set();
+            return arr.filter(q => { const k = q.trim(); if (seen.has(k)) return false; seen.add(k); return true; });
+        }
+
+        function str(v) { return v == null ? '' : String(v); }
+        function enc(v) { return encodeURIComponent(v); }
+        function esc(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
     </script>
 </body>
