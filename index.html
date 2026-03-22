@@ -3,33 +3,28 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>SAP Intelligence</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SAP OData Tool</title>
     <link
-        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=JetBrains+Mono:wght@400&display=swap"
         rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
             --bg: #F2F2F7;
-            --s1: #FFFFFF;
+            --surface: #FFFFFF;
             --s2: #F9F9FB;
-            --s3: #EFF0F5;
             --border: #E0E0E8;
             --accent: #0A84FF;
-            --adim: rgba(10, 132, 255, .09);
+            --adim: #E8F2FF;
             --adark: #006FD6;
             --t1: #1C1C1E;
             --t2: #6E6E73;
             --t3: #AEAEB2;
             --green: #30D158;
-            --gdim: rgba(48, 209, 88, .12);
             --red: #FF453A;
-            --rdim: rgba(255, 69, 58, .12);
             --yellow: #FF9F0A;
             --r: 12px;
             --rs: 8px;
-            --sh: 0 1px 3px rgba(0, 0, 0, .06), 0 4px 12px rgba(0, 0, 0, .04);
         }
 
         *,
@@ -40,185 +35,164 @@
             padding: 0;
         }
 
-        html,
         body {
-            height: 100%;
-        }
-
-        body {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             background: var(--bg);
             color: var(--t1);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100%;
-            overflow: hidden;
         }
 
-        /* ── HEADER ── */
+        /* ── Header ── */
         header {
-            height: 52px;
+            background: rgba(255, 255, 255, .92);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
-            padding: 0 20px;
+            height: 56px;
+            padding: 0 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-shrink: 0;
-            background: var(--s1);
-            box-shadow: var(--sh);
-            z-index: 10;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 9px;
+            gap: 8px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 15px;
         }
 
-        .logo-mark {
-            width: 28px;
-            height: 28px;
-            border-radius: 7px;
-            background: linear-gradient(135deg, var(--accent), #60A5FA);
+        .logo-icon {
+            width: 26px;
+            height: 26px;
+            background: var(--accent);
+            border-radius: 6px;
             display: grid;
             place-items: center;
         }
 
-        .logo-mark svg {
-            width: 14px;
-            height: 14px;
+        .logo-icon svg {
+            width: 13px;
+            height: 13px;
             fill: none;
             stroke: white;
-            stroke-width: 2.2;
+            stroke-width: 2.5;
         }
 
-        .logo-name {
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: -.3px;
-        }
-
-        .logo-name span {
-            color: var(--accent);
-        }
-
-        .pills {
-            display: flex;
-            gap: 8px;
-        }
-
-        .pill {
+        .conn-status {
             display: flex;
             align-items: center;
-            gap: 5px;
-            font-size: 11px;
+            gap: 6px;
+            font-size: 12px;
             color: var(--t2);
-            background: var(--s2);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 3px 10px;
         }
 
         .dot {
-            width: 5px;
-            height: 5px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: var(--t3);
-            flex-shrink: 0;
             transition: all .3s;
         }
 
         .dot.ok {
             background: var(--green);
-            box-shadow: 0 0 0 3px rgba(48, 209, 88, .15);
+            box-shadow: 0 0 0 3px rgba(48, 209, 88, .2);
         }
 
         .dot.warn {
             background: var(--yellow);
         }
 
-        /* ── APP ── */
-        .app {
-            display: flex;
+        /* ── Layout ── */
+        .layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
             flex: 1;
-            overflow: hidden;
         }
 
-        /* ── SIDEBAR ── */
+        /* ── Sidebar ── */
         aside {
-            width: 252px;
-            flex-shrink: 0;
-            background: var(--s1);
+            background: var(--surface);
             border-right: 1px solid var(--border);
+            padding: 16px;
             display: flex;
             flex-direction: column;
+            gap: 10px;
+            position: sticky;
+            top: 56px;
+            height: calc(100vh - 56px);
             overflow-y: auto;
         }
 
-        .sb {
+        .card {
+            background: var(--s2);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
             padding: 14px;
-            border-bottom: 1px solid var(--border);
         }
 
-        .sb.grow {
-            flex: 1;
-        }
-
-        .sb-lbl {
-            font-size: 9px;
+        .card-title {
+            font-family: 'Syne', sans-serif;
             font-weight: 700;
-            letter-spacing: 1.2px;
+            font-size: 10px;
+            letter-spacing: .9px;
             text-transform: uppercase;
-            color: var(--t3);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .sb-lbl::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border);
+            color: var(--t2);
+            margin-bottom: 12px;
         }
 
         .field {
-            margin-bottom: 7px;
+            margin-bottom: 8px;
         }
 
         .field label {
             font-size: 11px;
+            font-weight: 500;
             color: var(--t2);
             display: block;
-            margin-bottom: 3px;
-            font-weight: 500;
+            margin-bottom: 4px;
         }
 
-        .field input,
-        .field select {
+        .field input {
             width: 100%;
-            background: var(--s2);
+            background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--rs);
-            padding: 6px 9px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 12px;
+            padding: 7px 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
             color: var(--t1);
             outline: none;
             transition: border-color .15s, box-shadow .15s;
         }
 
-        .field input:focus,
-        .field select:focus {
+        .field input:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 2px var(--adim);
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, .12);
         }
 
         .field input[type="password"] {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
+            font-size: 12px;
             letter-spacing: 2px;
+        }
+
+        /* ── Proxy field highlight ── */
+        .field.proxy-field input {
+            border-color: rgba(10, 132, 255, .3);
+            background: var(--adim);
+        }
+
+        .field.proxy-field input:focus {
+            border-color: var(--accent);
+            background: var(--surface);
         }
 
         .field-hint {
@@ -228,208 +202,13 @@
             line-height: 1.4;
         }
 
-        .sbtn {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            padding: 7px;
-            border-radius: var(--rs);
-            border: none;
-            cursor: pointer;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all .15s;
-            margin-top: 5px;
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 6px 0;
         }
 
-        .sbtn:active {
-            transform: scale(.97);
-        }
-
-        .sbtn-p {
-            background: var(--accent);
-            color: white;
-        }
-
-        .sbtn-p:hover {
-            background: var(--adark);
-        }
-
-        .sbtn-g {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--t2);
-        }
-
-        .sbtn-g:hover {
-            background: var(--s2);
-        }
-
-        .csrf-status {
-            font-size: 10px;
-            color: var(--t3);
-            margin-top: 5px;
-            font-family: 'JetBrains Mono', monospace;
-            word-break: break-all;
-        }
-
-        /* history */
-        .hist {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .hitem {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: var(--s2);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 5px 9px;
-            cursor: pointer;
-            transition: all .15s;
-        }
-
-        .hitem:hover {
-            border-color: var(--accent);
-            background: var(--adim);
-        }
-
-        .hq {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            color: var(--t2);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            flex: 1;
-        }
-
-        .hitem:hover .hq {
-            color: var(--accent);
-        }
-
-        .hdel {
-            flex-shrink: 0;
-            width: 14px;
-            height: 14px;
-            border-radius: 3px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            color: var(--t3);
-            font-size: 10px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            transition: all .15s;
-        }
-
-        .hitem:hover .hdel {
-            display: flex;
-        }
-
-        .hdel:hover {
-            background: var(--red);
-            color: white;
-        }
-
-        /* ── MAIN ── */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* ── TABS ── */
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid var(--border);
-            background: var(--s1);
-            flex-shrink: 0;
-            padding: 0 20px;
-        }
-
-        .tab {
-            padding: 13px 16px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--t3);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all .15s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: -1px;
-            user-select: none;
-        }
-
-        .tab:hover {
-            color: var(--t1);
-        }
-
-        .tab.active {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
-
-        .ticon {
-            width: 13px;
-            height: 13px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-        }
-
-        /* ── PANELS ── */
-        .panel {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .panel.active {
-            display: flex;
-        }
-
-        /* ═══ QUERY PANEL ═══ */
-        .qpanel {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        .qbar {
-            background: var(--s1);
-            border: 1px solid var(--border);
-            border-radius: var(--r);
-            padding: 14px;
-            box-shadow: var(--sh);
-        }
-
-        .qbar-lbl {
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--t3);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
+        /* ── Proxy badge ── */
         .proxy-badge {
             display: inline-flex;
             align-items: center;
@@ -441,14 +220,89 @@
             background: var(--adim);
             color: var(--accent);
             border: 1px solid rgba(10, 132, 255, .2);
+            margin-left: 6px;
+            vertical-align: middle;
         }
 
-        .qrow {
+        .btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 8px;
+            border-radius: var(--rs);
+            border: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all .15s;
+            margin-top: 6px;
+        }
+
+        .btn:active {
+            transform: scale(.97);
+        }
+
+        .btn-p {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-p:hover {
+            background: var(--adark);
+        }
+
+        .btn-g {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--t2);
+        }
+
+        .btn-g:hover {
+            background: var(--bg);
+        }
+
+        /* ── Main ── */
+        main {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+        }
+
+        /* ── Query Box ── */
+        .query-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 16px;
+        }
+
+        .query-box-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .query-box-header label {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 10px;
+            letter-spacing: .9px;
+            text-transform: uppercase;
+            color: var(--t2);
+        }
+
+        .query-row {
             display: flex;
             gap: 8px;
+            align-items: center;
         }
 
-        .qinput {
+        .query-input {
             flex: 1;
             background: var(--s2);
             border: 1px solid var(--border);
@@ -461,15 +315,14 @@
             transition: border-color .15s, box-shadow .15s;
         }
 
-        .qinput:focus {
+        .query-input:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 2px var(--adim);
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, .1);
         }
 
-        .qinput::placeholder {
+        .query-input::placeholder {
             color: var(--t3);
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 12px;
+            font-family: 'DM Sans', sans-serif;
         }
 
         .run-btn {
@@ -479,15 +332,15 @@
             color: white;
             border: none;
             border-radius: var(--rs);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
             white-space: nowrap;
             display: flex;
             align-items: center;
             gap: 6px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all .15s;
+            transition: background .15s, transform .1s;
         }
 
         .run-btn:hover {
@@ -498,93 +351,148 @@
             transform: scale(.97);
         }
 
+        .run-btn:disabled {
+            background: var(--border);
+            cursor: not-allowed;
+        }
+
         .run-btn svg {
             fill: white;
-            width: 12px;
-            height: 12px;
+            width: 13px;
+            height: 13px;
         }
 
-        /* result */
-        .rbox {
-            background: var(--s1);
-            border: 1px solid var(--border);
-            border-radius: var(--r);
-            overflow: hidden;
-            display: none;
-            flex-direction: column;
-            flex: 1;
-            min-height: 0;
-            box-shadow: var(--sh);
+        /* Quick queries */
+        .quick-label {
+            font-size: 11px;
+            color: var(--t3);
+            margin-top: 10px;
+            margin-bottom: 6px;
         }
 
-        .rbox.show {
+        .quick-list {
             display: flex;
-        }
-
-        .rhead {
-            padding: 10px 16px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
-            background: var(--s2);
-        }
-
-        .rmeta {
-            display: flex;
-            align-items: center;
-            gap: 8px;
             flex-wrap: wrap;
+            gap: 6px;
         }
 
-        .ractions {
+        .quick-item {
+            background: var(--s2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            color: var(--t2);
+            transition: all .15s;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .rtag {
+        .quick-item:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--adim);
+        }
+
+        .quick-item .del-btn {
+            display: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--border);
+            border: none;
+            cursor: pointer;
+            color: var(--t2);
             font-size: 10px;
-            font-weight: 700;
+            line-height: 14px;
+            text-align: center;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .quick-item:hover .del-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quick-item .del-btn:hover {
+            background: var(--red);
+            color: white;
+        }
+
+        /* ── Result Panel ── */
+        .result-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            overflow: hidden;
+            display: none;
+        }
+
+        .result-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--s2);
+        }
+
+        .result-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 11px;
+            font-weight: 600;
             padding: 2px 9px;
             border-radius: 20px;
-            letter-spacing: .3px;
         }
 
-        .rtag-ok {
-            background: var(--gdim);
-            color: #15803D;
+        .tag-ok {
+            background: rgba(48, 209, 88, .12);
+            color: #1A7A3A;
         }
 
-        .rtag-err {
-            background: var(--rdim);
-            color: #DC2626;
+        .tag-err {
+            background: rgba(255, 69, 58, .12);
+            color: #C0392B;
         }
 
-        .rtag-load {
+        .tag-info {
             background: var(--adim);
             color: var(--accent);
         }
 
-        .rurl {
+        .result-url {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
+            font-size: 11px;
             color: var(--t3);
-            max-width: 480px;
+            max-width: 500px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
         .tbl-wrap {
-            overflow: auto;
-            flex: 1;
+            overflow-x: auto;
+            max-height: calc(100vh - 280px);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 12.5px;
+            font-family: 'JetBrains Mono', monospace;
             white-space: nowrap;
         }
 
@@ -599,30 +507,17 @@
             color: white;
             padding: 8px 14px;
             text-align: left;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 10px;
+            font-family: 'Syne', sans-serif;
+            font-size: 10.5px;
             font-weight: 700;
-            letter-spacing: .5px;
-            text-transform: uppercase;
-            border-right: 1px solid rgba(255, 255, 255, .15);
-        }
-
-        th:last-child {
-            border-right: none;
-        }
-
-        th.acol {
-            background: var(--adark);
-            width: 80px;
+            letter-spacing: .3px;
         }
 
         td {
             padding: 7px 14px;
             border-bottom: 1px solid var(--border);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11.5px;
-            color: var(--t2);
-            max-width: 220px;
+            color: var(--t1);
+            max-width: 240px;
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -637,120 +532,36 @@
 
         tr:hover td {
             background: var(--adim);
-            color: var(--t1);
+            cursor: default;
         }
 
-        td.acell {
-            padding: 4px 8px;
-            display: flex;
-            gap: 4px;
-            align-items: center;
-        }
-
-        tr:hover td.acell {
-            background: var(--adim);
-        }
-
-        .rbtn {
-            height: 24px;
-            padding: 0 8px;
-            border-radius: 5px;
-            border: 1px solid var(--border);
-            background: var(--s1);
-            cursor: pointer;
-            font-size: 11px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            transition: all .15s;
-        }
-
-        .rbtn.edit {
-            color: var(--accent);
-        }
-
-        .rbtn.edit:hover {
-            background: var(--adim);
-            border-color: var(--accent);
-        }
-
-        .rbtn.del {
-            color: var(--red);
-        }
-
-        .rbtn.del:hover {
-            background: var(--rdim);
-            border-color: var(--red);
-        }
-
-        .icon-btn {
-            height: 30px;
-            padding: 0 12px;
-            border-radius: var(--rs);
-            border: 1px solid var(--border);
-            background: var(--s1);
-            cursor: pointer;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 12px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: var(--t2);
-            transition: all .15s;
-            white-space: nowrap;
-        }
-
-        .icon-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: var(--adim);
-        }
-
-        .icon-btn.grn {
-            color: #15803D;
-            border-color: rgba(48, 209, 88, .3);
-        }
-
-        .icon-btn.grn:hover {
-            background: var(--gdim);
-            border-color: var(--green);
-        }
-
-        .icon-btn svg {
-            width: 11px;
-            height: 11px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2.5;
-        }
-
+        /* raw JSON fallback */
         .raw-out {
+            background: #1C1C1E;
+            color: #E5E5EA;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11.5px;
+            font-size: 12px;
             line-height: 1.7;
-            color: var(--t2);
             padding: 16px;
-            overflow: auto;
-            flex: 1;
-            background: var(--s2);
+            overflow-x: auto;
+            max-height: calc(100vh - 280px);
         }
 
-        .loading-row {
-            padding: 48px;
+        /* loading */
+        .loading {
+            padding: 40px;
+            text-align: center;
+            color: var(--t3);
+            font-size: 13px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            color: var(--t3);
-            font-size: 13px;
+            gap: 8px;
         }
 
         .spinner {
-            width: 15px;
-            height: 15px;
+            width: 16px;
+            height: 16px;
             border: 2px solid var(--border);
             border-top-color: var(--accent);
             border-radius: 50%;
@@ -763,594 +574,9 @@
             }
         }
 
-        /* ═══ AGENT PANEL ═══ */
-        .chat-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .welcome {
-            text-align: center;
-            padding: 40px 20px 20px;
-        }
-
-        .wicon {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            margin: 0 auto 16px;
-            background: linear-gradient(135deg, var(--adark), #60A5FA);
-            display: grid;
-            place-items: center;
-        }
-
-        .wicon svg {
-            width: 24px;
-            height: 24px;
-            fill: none;
-            stroke: white;
-            stroke-width: 2;
-        }
-
-        .welcome h2 {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -.5px;
-            margin-bottom: 8px;
-        }
-
-        .welcome p {
-            color: var(--t2);
-            font-size: 13px;
-            max-width: 380px;
-            margin: 0 auto 20px;
-            line-height: 1.6;
-        }
-
-        .chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            justify-content: center;
-        }
-
-        .chip {
-            background: var(--s1);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 6px 13px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all .15s;
-            color: var(--t2);
-            box-shadow: var(--sh);
-        }
-
-        .chip:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: var(--adim);
-        }
-
-        .msg {
-            display: flex;
-            gap: 10px;
-            max-width: 860px;
-            animation: fadeUp .2s ease both;
-        }
-
-        .msg.user {
-            flex-direction: row-reverse;
-            align-self: flex-end;
-        }
-
-        .msg.bot {
-            align-self: flex-start;
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .av {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: grid;
-            place-items: center;
-            flex-shrink: 0;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .av.u {
-            background: var(--accent);
-            color: white;
-        }
-
-        .av.b {
-            background: var(--s3);
-            border: 1px solid var(--border);
-            font-size: 14px;
-        }
-
-        .bubble {
-            padding: 10px 14px;
-            border-radius: 13px;
-            font-size: 13px;
-            line-height: 1.6;
-            max-width: 720px;
-        }
-
-        .msg.user .bubble {
-            background: var(--accent);
-            color: white;
-            border-bottom-right-radius: 3px;
-        }
-
-        .msg.bot .bubble {
-            background: var(--s1);
-            border: 1px solid var(--border);
-            border-bottom-left-radius: 3px;
-            box-shadow: var(--sh);
-        }
-
-        .atag {
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 20px;
-            margin-right: 3px;
-        }
-
-        .atag-ok {
-            background: var(--gdim);
-            color: #15803D;
-        }
-
-        .atag-err {
-            background: var(--rdim);
-            color: #DC2626;
-        }
-
-        .atag-info {
-            background: var(--adim);
-            color: var(--accent);
-        }
-
-        .atag-warn {
-            background: rgba(255, 159, 10, .12);
-            color: #B45309;
-        }
-
-        .code-block {
-            background: var(--s3);
-            border: 1px solid var(--border);
-            border-radius: var(--rs);
-            padding: 11px 13px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            line-height: 1.7;
-            overflow-x: auto;
-            margin-top: 8px;
-            color: var(--t2);
-        }
-
-        .code-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .code-lbl {
-            font-size: 9px;
-            text-transform: uppercase;
-            letter-spacing: .8px;
-            color: var(--t3);
-            font-family: 'Space Grotesk', sans-serif;
-        }
-
-        .copy-btn {
-            background: var(--s1);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            color: var(--t2);
-            font-size: 10px;
-            padding: 2px 7px;
-            cursor: pointer;
-            font-family: 'Space Grotesk', sans-serif;
-            transition: all .15s;
-        }
-
-        .copy-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .typing {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-            padding: 2px 0;
-        }
-
-        .typing span {
+        ::-webkit-scrollbar {
             width: 5px;
             height: 5px;
-            border-radius: 50%;
-            background: var(--t3);
-            animation: bounce .8s infinite ease-in-out;
-        }
-
-        .typing span:nth-child(2) {
-            animation-delay: .15s;
-        }
-
-        .typing span:nth-child(3) {
-            animation-delay: .30s;
-        }
-
-        @keyframes bounce {
-
-            0%,
-            80%,
-            100% {
-                transform: translateY(0);
-                opacity: .4;
-            }
-
-            40% {
-                transform: translateY(-5px);
-                opacity: 1;
-            }
-        }
-
-        .agent-tbl {
-            overflow-x: auto;
-            margin-top: 8px;
-            border-radius: var(--rs);
-            border: 1px solid var(--border);
-        }
-
-        .agent-tbl table {
-            font-size: 11px;
-        }
-
-        .agent-tbl th {
-            font-size: 9px;
-            padding: 6px 10px;
-        }
-
-        .agent-tbl td {
-            padding: 5px 10px;
-            font-size: 11px;
-        }
-
-        .input-bar {
-            border-top: 1px solid var(--border);
-            background: var(--s1);
-            padding: 14px 20px;
-            flex-shrink: 0;
-        }
-
-        .iwrap {
-            background: var(--s2);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            padding: 9px 12px;
-            transition: border-color .15s, box-shadow .15s;
-        }
-
-        .iwrap:focus-within {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px var(--adim);
-        }
-
-        #chatInput {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 13px;
-            color: var(--t1);
-            resize: none;
-            max-height: 120px;
-            line-height: 1.5;
-        }
-
-        #chatInput::placeholder {
-            color: var(--t3);
-        }
-
-        .send-btn {
-            width: 30px;
-            height: 30px;
-            background: var(--accent);
-            border: none;
-            border-radius: 7px;
-            display: grid;
-            place-items: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: all .15s;
-        }
-
-        .send-btn:hover {
-            background: var(--adark);
-        }
-
-        .send-btn:active {
-            transform: scale(.92);
-        }
-
-        .send-btn:disabled {
-            background: var(--border);
-            cursor: not-allowed;
-        }
-
-        .send-btn svg {
-            fill: white;
-            width: 13px;
-            height: 13px;
-        }
-
-        .input-hint {
-            font-size: 10px;
-            color: var(--t3);
-            margin-top: 6px;
-            text-align: center;
-        }
-
-        /* ── MODAL ── */
-        .overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, .3);
-            backdrop-filter: blur(4px);
-            z-index: 200;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .overlay.open {
-            display: flex;
-        }
-
-        .modal {
-            background: var(--s1);
-            border-radius: 14px;
-            width: 520px;
-            max-width: 95vw;
-            max-height: 85vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 24px 60px rgba(0, 0, 0, .15);
-            overflow: hidden;
-        }
-
-        .mhead {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--s2);
-        }
-
-        .mtitle {
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        .mclose {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            background: var(--s1);
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--t2);
-            transition: all .15s;
-        }
-
-        .mclose:hover {
-            background: var(--rdim);
-            color: var(--red);
-            border-color: var(--red);
-        }
-
-        .mbody {
-            padding: 20px;
-            overflow-y: auto;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .mfoot {
-            padding: 14px 20px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-            background: var(--s2);
-        }
-
-        .mfield {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .mfield label {
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--t2);
-        }
-
-        .mfield input {
-            background: var(--s2);
-            border: 1px solid var(--border);
-            border-radius: var(--rs);
-            padding: 8px 10px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            color: var(--t1);
-            outline: none;
-            transition: border-color .15s;
-        }
-
-        .mfield input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px var(--adim);
-        }
-
-        .mfield input:disabled {
-            opacity: .45;
-            cursor: not-allowed;
-            background: var(--border);
-        }
-
-        .kbadge {
-            font-size: 9px;
-            font-weight: 600;
-            padding: 1px 5px;
-            border-radius: 10px;
-            background: var(--adim);
-            color: var(--accent);
-            margin-left: 4px;
-            vertical-align: middle;
-        }
-
-        .fbtn {
-            height: 34px;
-            padding: 0 16px;
-            border-radius: var(--rs);
-            border: none;
-            cursor: pointer;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all .15s;
-        }
-
-        .fbtn:active {
-            transform: scale(.97);
-        }
-
-        .fbtn-p {
-            background: var(--accent);
-            color: white;
-        }
-
-        .fbtn-p:hover {
-            background: var(--adark);
-        }
-
-        .fbtn-g {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--t2);
-        }
-
-        .fbtn-g:hover {
-            background: var(--bg);
-        }
-
-        .fbtn-r {
-            background: var(--red);
-            color: white;
-        }
-
-        .fbtn-r:hover {
-            background: #cc3530;
-        }
-
-        /* ── TOAST ── */
-        .toasts {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 300;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .toast {
-            padding: 10px 16px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
-            animation: slideIn .2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            min-width: 220px;
-        }
-
-        .toast-ok {
-            background: #15803D;
-            color: white;
-        }
-
-        .toast-err {
-            background: #DC2626;
-            color: white;
-        }
-
-        .toast-info {
-            background: var(--accent);
-            color: white;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(12px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
         }
 
         ::-webkit-scrollbar-track {
@@ -1359,7 +585,7 @@
 
         ::-webkit-scrollbar-thumb {
             background: var(--border);
-            border-radius: 2px;
+            border-radius: 3px;
         }
     </style>
 </head>
@@ -1368,587 +594,322 @@
 
     <header>
         <div class="logo">
-            <div class="logo-mark"><svg viewBox="0 0 24 24">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                </svg></div>
-            <span class="logo-name">SAP <span>Intelligence</span></span>
+                </svg>
+            </div>
+            SAP OData Tool
         </div>
-        <div class="pills">
-            <div class="pill"><span class="dot" id="dotSAP"></span><span id="lblSAP">SAP —</span></div>
-            <div class="pill"><span class="dot" id="dotAI"></span><span id="lblAI">OpenAI —</span></div>
+        <div class="conn-status">
+            <span class="dot" id="connDot"></span>
+            <span id="connLbl">Nicht verbunden</span>
         </div>
     </header>
 
-    <div class="app">
+    <div class="layout">
         <aside>
-            <div class="sb">
-                <div class="sb-lbl">SAP Verbindung</div>
-                <div class="field"><label>Host</label><input id="sapHost" placeholder="http://host:8001" /></div>
-                <div class="field"><label>Client</label><input id="sapClient" placeholder="100" /></div>
-                <div class="field"><label>Benutzer</label><input id="sapUser" placeholder="BPUSER" /></div>
-                <div class="field"><label>Passwort</label><input type="password" id="sapPassword"
-                        placeholder="••••••••" /></div>
+            <div class="card">
+                <div class="card-title">SAP Verbindung</div>
                 <div class="field">
-                    <label>Proxy-URL <span style="color:var(--t3);font-weight:400">(optional, CORS)</span></label>
-                    <input id="sapProxy" placeholder="http://localhost:3000" />
-                    <div class="field-hint">Leer = direkt gegen SAP. Mit Proxy = CORS-frei.</div>
+                    <label>Host</label>
+                    <input id="sapHost" type="text" placeholder="http://host:8001" />
                 </div>
-                <button class="sbtn sbtn-p" id="saveBtn">
+                <div class="field">
+                    <label>Client</label>
+                    <input id="sapClient" type="text" placeholder="100" />
+                </div>
+                <div class="field">
+                    <label>Benutzer</label>
+                    <input id="sapUser" type="text" placeholder="BPUSER" />
+                </div>
+                <div class="field">
+                    <label>Passwort</label>
+                    <input id="sapPassword" type="password" placeholder="••••••••" />
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- ── PROXY FIELD (NEU) ── -->
+                <div class="field proxy-field">
+                    <label>Proxy-URL <span style="font-weight:400;color:var(--t3)">(optional, für CORS)</span></label>
+                    <input id="sapProxy" type="text" placeholder="http://localhost:3000" />
+                    <div class="field-hint">
+                        Wenn gesetzt, werden Requests über diesen Proxy geleitet statt direkt an den SAP-Host.
+                        Der Proxy muss <code style="font-family:JetBrains Mono,monospace">/sap/opu/odata/sap/…</code> an den SAP-Host weiterleiten.
+                    </div>
+                </div>
+
+                <button class="btn btn-p" id="saveBtn">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2.5">
                         <polyline points="20 6 9 17 4 12" />
                     </svg>
                     Speichern
                 </button>
-                <button class="sbtn sbtn-g" id="testBtn">Verbindung testen</button>
-            </div>
-
-            <div class="sb">
-                <div class="sb-lbl">CSRF Token</div>
-                <div style="font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:8px;">Für POST/PATCH/DELETE
-                    wird automatisch ein CSRF-Token geholt.</div>
-                <button class="sbtn sbtn-g" id="csrfBtn">Token neu holen</button>
-                <div class="csrf-status" id="csrfStatus"></div>
-            </div>
-
-            <div class="sb">
-                <div class="sb-lbl">OpenAI</div>
-                <div class="field"><label>API Key</label><input type="password" id="openaiKey" placeholder="sk-..." />
-                </div>
-                <div class="field">
-                    <label>Modell</label>
-                    <select id="modelSelect">
-                        <option value="gpt-4o-mini">gpt-4o-mini</option>
-                        <option value="gpt-4o">gpt-4o</option>
-                        <option value="gpt-4-turbo">gpt-4-turbo</option>
-                    </select>
-                </div>
-                <button class="sbtn sbtn-p" id="saveAIBtn">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2.5">
-                        <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    Speichern
-                </button>
-            </div>
-
-            <div class="sb grow">
-                <div class="sb-lbl">Gespeicherte Abfragen</div>
-                <div class="hist" id="hist"></div>
+                <button class="btn btn-g" id="testBtn">Verbindung testen</button>
             </div>
         </aside>
 
-        <div class="main">
-            <div class="tabs">
-                <div class="tab active" id="tabQ" onclick="sw('Q')">
-                    <svg class="ticon" viewBox="0 0 24 24">
-                        <polyline points="4 6 4 2 20 2 20 22 4 22 4 18" />
-                        <polyline points="8 18 2 12 8 6" />
-                    </svg>
-                    Direktabfrage
+        <main>
+            <!-- Query Box -->
+            <div class="query-box">
+                <div class="query-box-header">
+                    <label>OData Abfrage</label>
+                    <span class="proxy-badge" id="proxyBadge" style="display:none">⇄ Proxy aktiv</span>
                 </div>
-                <div class="tab" id="tabA" onclick="sw('A')">
-                    <svg class="ticon" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10" />
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                        <line x1="12" y1="17" x2="12.01" y2="17" />
-                    </svg>
-                    KI-Agent
+                <div class="query-row">
+                    <input id="queryInput" class="query-input" type="text"
+                        placeholder="A_TRSYPOSFLOW_CDS/A_TrsyPosFlow?$top=20" />
+                    <button class="run-btn" id="runBtn">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M5 3l14 9-14 9V3z" />
+                        </svg>
+                        Ausführen
+                    </button>
                 </div>
+                <div class="quick-label">Schnellzugriff:</div>
+                <div class="quick-list" id="quickList"></div>
             </div>
 
-            <!-- QUERY -->
-            <div class="panel active" id="panelQ">
-                <div class="qpanel">
-                    <div class="qbar">
-                        <div class="qbar-lbl">
-                            OData Abfrage — Service/EntitySet?$options
-                            <span class="proxy-badge" id="proxyBadge" style="display:none">⇄ Proxy aktiv</span>
-                        </div>
-                        <div class="qrow">
-                            <input id="qinput" class="qinput" placeholder="A_TRSYPOSFLOW_CDS/A_TrsyPosFlow?$top=20" />
-                            <button class="run-btn" id="runBtn">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M5 3l14 9-14 9V3z" />
-                                </svg>
-                                Ausführen
-                            </button>
-                        </div>
-                    </div>
-                    <div class="rbox" id="rbox">
-                        <div class="rhead">
-                            <div class="rmeta">
-                                <span class="rtag rtag-load" id="rtag">Lädt…</span>
-                                <span class="rurl" id="rurl"></span>
-                            </div>
-                            <div class="ractions" id="ractions"></div>
-                        </div>
-                        <div id="rbody"></div>
+            <!-- Result -->
+            <div class="result-panel" id="resultPanel">
+                <div class="result-header">
+                    <div class="result-meta">
+                        <span class="tag tag-ok" id="resultTag">0 Zeilen</span>
+                        <span class="result-url" id="resultUrl"></span>
                     </div>
                 </div>
+                <div id="resultBody"></div>
             </div>
-
-            <!-- AGENT -->
-            <div class="panel" id="panelA">
-                <div class="chat-area" id="chatArea">
-                    <div class="welcome" id="welcomeMsg">
-                        <div class="wicon"><svg viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                                <line x1="12" y1="17" x2="12.01" y2="17" />
-                            </svg></div>
-                        <h2>KI-Agent</h2>
-                        <p>Beschreibe was du abfragen oder anlegen möchtest — der Agent übersetzt es in einen
-                            OData-Call.</p>
-                        <div class="chips">
-                            <div class="chip" onclick="chip('Zeige mir alle FX Exposures')">📋 FX Exposures</div>
-                            <div class="chip" onclick="chip('Zeige alle FX Exposures mit CompanyCode 1000')">🔍 Filter
-                                CompanyCode</div>
-                            <div class="chip" onclick="chip('Zeige mir die letzten 20 TRM Position Flows')">📊 Position
-                                Flows</div>
-                            <div class="chip"
-                                onclick="chip('Lege eine neue FX Exposure an: CompanyCode 1000, RiskCurrency EUR, TargetCurrency USD, Amount 500000, Direction Inflow, ValidFrom 2025-01-01, DueDate 2025-12-31')">
-                                ➕ FX Exposure anlegen</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="input-bar">
-                    <div class="iwrap">
-                        <textarea id="chatInput" rows="1" placeholder="SAP-Vorgang beschreiben…"></textarea>
-                        <button class="send-btn" id="sendBtn"><svg viewBox="0 0 24 24">
-                                <path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z" />
-                            </svg></button>
-                    </div>
-                    <div class="input-hint">Enter senden · Shift+Enter neue Zeile</div>
-                </div>
-            </div>
-        </div>
+        </main>
     </div>
-
-    <!-- MODAL -->
-    <div class="overlay" id="overlay">
-        <div class="modal">
-            <div class="mhead"><span class="mtitle" id="mtitle">Datensatz</span><button class="mclose"
-                    onclick="closeModal()">✕</button></div>
-            <div class="mbody" id="mbody"></div>
-            <div class="mfoot" id="mfoot"></div>
-        </div>
-    </div>
-
-    <div class="toasts" id="toasts"></div>
 
     <script>
-        /* ═══════════════════════════════════
-           STORAGE
-        ═══════════════════════════════════ */
-        const SK = 'sap_intel_v3';
-        function ld() { try { return JSON.parse(localStorage.getItem(SK) || '{}') } catch { return {} } }
-        function sv() { try { localStorage.setItem(SK, JSON.stringify(cfg)) } catch { } }
+        /* ─── STORAGE ─── */
+        const KEY = 'sap_odata_tool_v2';
+        function loadStore() { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return {}; } }
+        function saveStore() { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch { } }
 
-        const _s = ld();
+        const s = loadStore();
         const cfg = {
-            host: _s.host || '',
-            client: _s.client || '',
-            user: _s.user || '',
-            pass: _s.pass || '',
-            proxy: _s.proxy || '',
-            aiKey: _s.aiKey || '',
-            model: _s.model || 'gpt-4o-mini',
-            queries: dedup(_s.queries || ['A_TRSYPOSFLOW_CDS/A_TrsyPosFlow?$top=20', 'API_FOREIGNEXCHANGEEXPOSURE_SRV/ForeignExchangeExposure?$top=20'])
+            host:    s.host    || '',
+            client:  s.client  || '',
+            user:    s.user    || '',
+            pass:    s.pass    || '',
+            proxy:   s.proxy   || '',   // ← NEU
+            queries: dedup(s.queries || [
+                'A_TRSYPOSFLOW_CDS/A_TrsyPosFlow?$top=20',
+                'API_FOREIGNEXCHANGEEXPOSURE_SRV/ForeignExchangeExposure?$top=20',
+            ])
         };
 
-        /* state */
-        let rows = [], cols = [], curSvc = '', curEnt = '', csrfTok = null;
+        /* ─── RESTORE FIELDS ─── */
+        document.getElementById('sapHost').value     = cfg.host;
+        document.getElementById('sapClient').value   = cfg.client;
+        document.getElementById('sapUser').value     = cfg.user;
+        document.getElementById('sapPassword').value = cfg.pass;
+        document.getElementById('sapProxy').value    = cfg.proxy;
+        updateProxyBadge();
+        if (cfg.host) setDot('warn', cfg.host);
 
-        /* restore */
-        (function () {
-            g('sapHost').value = cfg.host;
-            g('sapClient').value = cfg.client;
-            g('sapUser').value = cfg.user;
-            g('sapPassword').value = cfg.pass;
-            g('sapProxy').value = cfg.proxy;
-            g('openaiKey').value = cfg.aiKey;
-            g('modelSelect').value = cfg.model;
-            updateProxy();
-            if (cfg.host || cfg.proxy) setDot('dotSAP', 'lblSAP', 'warn', cfg.proxy ? 'Proxy konfiguriert' : 'SAP konfiguriert');
-            if (cfg.aiKey) setDot('dotAI', 'lblAI', 'ok', 'OpenAI ✓');
-            renderHist();
-        })();
+        function bindField(id, fn) {
+            const el = document.getElementById(id);
+            el.addEventListener('input', () => { fn(el.value); saveStore(); });
+        }
+        bindField('sapHost',     v => { cfg.host   = v.trim().replace(/\/$/, ''); });
+        bindField('sapClient',   v => { cfg.client = v.trim(); });
+        bindField('sapUser',     v => { cfg.user   = v.trim(); });
+        bindField('sapPassword', v => { cfg.pass   = v; });
+        bindField('sapProxy',    v => { cfg.proxy  = v.trim().replace(/\/$/, ''); updateProxyBadge(); });
 
-        function g(id) { return document.getElementById(id); }
-        function bind(id, fn) { const el = g(id); el && el.addEventListener('input', () => { fn(el.value); sv(); }); }
-        bind('sapHost', v => cfg.host = v.trim().replace(/\/$/, ''));
-        bind('sapClient', v => cfg.client = v.trim());
-        bind('sapUser', v => cfg.user = v.trim());
-        bind('sapPassword', v => cfg.pass = v);
-        bind('sapProxy', v => { cfg.proxy = v.trim().replace(/\/$/, ''); updateProxy(); });
-        bind('openaiKey', v => cfg.aiKey = v.trim());
-        bind('modelSelect', v => cfg.model = v);
-
-        function updateProxy() {
-            const on = !!cfg.proxy;
-            g('proxyBadge').style.display = on ? 'inline-flex' : 'none';
+        function updateProxyBadge() {
+            document.getElementById('proxyBadge').style.display = cfg.proxy ? 'inline-flex' : 'none';
         }
 
-        g('saveBtn').addEventListener('click', () => { sv(); setDot('dotSAP', 'lblSAP', 'warn', cfg.proxy ? 'Proxy ✓' : 'SAP ✓'); });
-        g('saveAIBtn').addEventListener('click', () => { sv(); if (cfg.aiKey) setDot('dotAI', 'lblAI', 'ok', 'OpenAI ✓'); });
-
-        /* ═══ AUTH PARAMS — Credentials in URL, kein Authorization-Header → kein CORS-Preflight ═══ */
-        function authP(leadAmp = false) {
-            /* Only sap-client in URL. Credentials via browser session cookie (auto-sent).
-               sap-user/sap-password URL params cause login failure on most SAP systems. */
-            let p = '';
-            if (cfg.client) p += '&sap-client=' + enc(cfg.client);
-            return leadAmp ? p : p.replace(/^&/, '');
-        }
-
-        function baseUrl() { return (cfg.proxy || cfg.host).replace(/\/$/, ''); }
-
-        /* ═══ TEST ═══ */
-        g('testBtn').addEventListener('click', async () => {
-            if (!cfg.host && !cfg.proxy) { alert('Bitte Host eintragen.'); return; }
-            setDot('dotSAP', 'lblSAP', 'warn', 'Teste…');
-            try {
-                const url = baseUrl() + '/sap/opu/odata/sap/?$format=json' + authP(true);
-                const res = await fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'include' });
-                setDot('dotSAP', 'lblSAP', res.ok || res.status === 401 ? 'ok' : 'warn', (cfg.proxy ? 'Proxy · ' : '') + 'HTTP ' + res.status);
-            } catch (e) { setDot('dotSAP', 'lblSAP', '', 'Fehler'); }
+        /* ─── SAVE BUTTON ─── */
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            saveStore();
+            setDot('warn', cfg.host || '—');
         });
 
-        /* ═══ CSRF ═══ */
-        g('csrfBtn').addEventListener('click', () => fetchCsrf(true));
-        async function fetchCsrf(manual = false) {
-            /* X-CSRF-Token: Fetch is a custom header → triggers CORS preflight.
-               Only attempt when proxy is active (proxy adds CORS headers).
-               Without proxy, write operations may fail — use proxy.js for CRUD. */
-            if (!cfg.proxy) {
-                if (manual) toast('CSRF nur mit aktivem Proxy verfügbar (CORS)', 'err');
-                return;
-            }
-            const svc = curSvc || (cfg.queries[0] || '').split('/')[0];
-            if (!baseUrl() || !svc) { if (manual) toast('Host & Service benötigt', 'err'); return; }
-            const url = baseUrl() + '/sap/opu/odata/sap/' + svc + '/?$format=json' + authP(true);
+        /* ─── TEST CONNECTION ─── */
+        document.getElementById('testBtn').addEventListener('click', async () => {
+            if (!cfg.host && !cfg.proxy) { alert('Bitte zuerst Host eintragen.'); return; }
+            setDot('warn', 'Teste…');
             try {
-                const res = await fetch(url, { headers: { 'X-CSRF-Token': 'Fetch', 'Accept': 'application/json' } });
-                const tok = res.headers.get('X-CSRF-Token') || res.headers.get('x-csrf-token');
-                if (tok && tok !== 'Required') {
-                    csrfTok = tok;
-                    g('csrfStatus').textContent = '✓ ' + tok.slice(0, 32) + (tok.length > 32 ? '…' : '');
-                    if (manual) toast('CSRF-Token geholt', 'ok');
-                } else { if (manual) toast('Kein Token erhalten', 'err'); }
-            } catch (e) { if (manual) toast('Token-Fehler: ' + e.message, 'err'); }
-        }
-        async function ensureCsrf() { if (!csrfTok) await fetchCsrf(); return csrfTok; }
+                const base = cfg.proxy || cfg.host;   // Proxy bevorzugen
+                const url = base + '/sap/opu/odata/sap/?sap-client=' + encodeURIComponent(cfg.client)
+                    + '&$format=json&sap-user=' + encodeURIComponent(cfg.user)
+                    + '&sap-password=' + encodeURIComponent(cfg.pass);
+                const res = await fetch(url);
+                if (res.ok || res.status === 401) {
+                    setDot('ok', (cfg.proxy ? 'Proxy · ' : '') + 'HTTP ' + res.status);
+                } else {
+                    setDot('warn', 'HTTP ' + res.status);
+                }
+            } catch (e) {
+                setDot('', 'Fehler: ' + e.message);
+            }
+        });
 
-        function writeHdrs() { return { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-Token': csrfTok || '' }; }
-
-        /* ═══ HISTORY ═══ */
-        function renderHist() {
-            const el = g('hist');
-            if (!cfg.queries.length) { el.innerHTML = '<div style="font-size:11px;color:var(--t3)">Noch keine Abfragen</div>'; return; }
+        /* ─── QUICK LIST ─── */
+        function renderQuickList() {
+            const el = document.getElementById('quickList');
             el.innerHTML = cfg.queries.map((q, i) =>
-                `<div class="hitem" onclick="useHist(${i})">
-      <span class="hq">${esc(q)}</span>
-      <button class="hdel" onclick="delHist(event,${i})">✕</button>
-    </div>`
+                `<span class="quick-item" onclick="useQuery(${i})">
+                    ${esc(q)}
+                    <button class="del-btn" title="Entfernen" onclick="removeQuery(event,${i})">✕</button>
+                </span>`
             ).join('');
         }
-        function useHist(i) { g('qinput').value = cfg.queries[i]; sw('Q'); runQuery(); }
-        function delHist(e, i) { e.stopPropagation(); cfg.queries.splice(i, 1); sv(); renderHist(); }
-        function addHist(q) { cfg.queries = dedup([q, ...cfg.queries]).slice(0, 10); sv(); renderHist(); }
+        renderQuickList();
 
-        /* ═══ TABS ═══ */
-        function sw(n) {
-            ['Q', 'A'].forEach(t => {
-                g('tab' + t).classList.toggle('active', t === n);
-                g('panel' + t).classList.toggle('active', t === n);
-            });
+        function useQuery(i) {
+            document.getElementById('queryInput').value = cfg.queries[i];
+            runQuery();
         }
 
-        /* ═══ RUN QUERY ═══ */
-        g('runBtn').addEventListener('click', runQuery);
-        g('qinput').addEventListener('keydown', e => { if (e.key === 'Enter') runQuery(); });
+        /* ── FIX: Quick-List Eintrag löschen ── */
+        function removeQuery(e, i) {
+            e.stopPropagation();
+            cfg.queries.splice(i, 1);
+            saveStore();
+            renderQuickList();
+        }
+
+        /* ─── RUN ─── */
+        document.getElementById('runBtn').addEventListener('click', runQuery);
+        document.getElementById('queryInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') runQuery();
+        });
 
         async function runQuery() {
-            const raw = g('qinput').value.trim();
+            const raw = document.getElementById('queryInput').value.trim();
             if (!raw) return;
-            if (!cfg.host && !cfg.proxy) { alert('Bitte SAP Host konfigurieren.'); return; }
-            addHist(raw);
-            const parts = raw.split('?')[0].split('/');
-            curSvc = parts[0] || ''; curEnt = parts[1] || '';
-            const sep = raw.includes('?') ? '&' : '?';
-            const url = baseUrl() + '/sap/opu/odata/sap/' + raw + sep + '$format=json' + authP(true);
-            showLoad(url);
-            if (cfg.proxy) fetchCsrf();   /* only with proxy — custom header triggers CORS otherwise */
+            if (!cfg.host && !cfg.proxy) { alert('Bitte SAP Host (oder Proxy) eintragen und speichern.'); return; }
+
+            /* ── FIX: Dedup — vorher rausfiltern, dann vorne einfügen ── */
+            cfg.queries = cfg.queries.filter(q => q !== raw);
+            cfg.queries.unshift(raw);
+            if (cfg.queries.length > 8) cfg.queries.pop();
+            saveStore();
+            renderQuickList();
+
+            /* Build URL — Proxy hat Vorrang vor Host */
+            const base = cfg.proxy || cfg.host;
+            const sep  = raw.includes('?') ? '&' : '?';
+            let extra  = '$format=json';
+            if (cfg.client) extra += '&sap-client='   + encodeURIComponent(cfg.client);
+            if (cfg.user)   extra += '&sap-user='     + encodeURIComponent(cfg.user);
+            if (cfg.pass)   extra += '&sap-password=' + encodeURIComponent(cfg.pass);
+            const url = base + '/sap/opu/odata/sap/' + raw + sep + extra;
+
+            showLoading(url);
+
             try {
-                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-                const txt = await res.text();
-                if (!res.ok) { showErr('HTTP ' + res.status, txt.slice(0, 600), url); return; }
-                let json; try { json = JSON.parse(txt); } catch { showRaw(txt, url); return; }
+                const res  = await fetch(url, { headers: authHeader() });
+                const text = await res.text();
+
+                if (!res.ok) {
+                    showError('HTTP ' + res.status, text.slice(0, 400), url);
+                    return;
+                }
+
+                let json;
+                try { json = JSON.parse(text); }
+                catch { showRaw(text, url); return; }
+
                 showTable(json, url);
-            } catch (e) { showErr('Netzwerkfehler', e.message, url); }
+
+            } catch (e) {
+                showError('Netzwerkfehler', e.message, url);
+            }
         }
 
-        /* ═══ DISPLAY ═══ */
-        function showLoad(url) {
-            g('rbox').classList.add('show');
-            setRH('rtag-load', 'Lädt…', url, false);
-            g('rbody').innerHTML = '<div class="loading-row"><div class="spinner"></div> Anfrage läuft…</div>';
+        /* ─── AUTH ─── */
+        function authHeader() {
+            return { 'Accept': 'application/json' };
+        }
+
+        /* ─── DISPLAY ─── */
+        function showLoading(url) {
+            const panel = document.getElementById('resultPanel');
+            panel.style.display = 'block';
+            document.getElementById('resultUrl').textContent  = url;
+            document.getElementById('resultTag').className    = 'tag tag-info';
+            document.getElementById('resultTag').textContent  = 'Lädt…';
+            document.getElementById('resultBody').innerHTML   =
+                '<div class="loading"><div class="spinner"></div> Anfrage läuft…</div>';
         }
 
         function showTable(json, url) {
-            let r = null;
-            if (Array.isArray(json?.d?.results)) r = json.d.results;
-            else if (Array.isArray(json?.value)) r = json.value;
-            else if (json?.d && typeof json.d === 'object') r = [json.d];
-            if (r && r.length) {
-                rows = r; cols = Object.keys(r[0]).filter(k => k !== '__metadata');
-                const th = '<tr>' + cols.map(c => '<th>' + esc(c) + '</th>').join('') + '<th class="acol">Aktionen</th></tr>';
-                const tb = r.map((row, i) => '<tr>' + cols.map(c => `<td title="${esc(str(row[c]))}">${esc(str(row[c]))}</td>`).join('')
-                    + `<td class="acell"><button class="rbtn edit" onclick="openEdit(${i})">✏</button><button class="rbtn del" onclick="confirmDel(${i})">🗑</button></td></tr>`).join('');
-                setRH('rtag-ok', r.length + ' Datensatz' + (r.length !== 1 ? 'e' : ''), url, true);
-                g('rbody').innerHTML = '<div class="tbl-wrap"><table><thead>' + th + '</thead><tbody>' + tb + '</tbody></table></div>';
-            } else { showRaw(JSON.stringify(json, null, 2), url); }
-        }
+            let rows = null;
+            if (Array.isArray(json?.d?.results))            rows = json.d.results;
+            else if (Array.isArray(json?.value))            rows = json.value;
+            else if (json?.d && typeof json.d === 'object') rows = [json.d];
 
-        function setRH(cls, txt, url, actions) {
-            g('rtag').className = 'rtag ' + cls; g('rtag').textContent = txt;
-            g('rurl').textContent = url;
-            g('rbox').classList.add('show');
-            g('ractions').innerHTML = actions ? `
-    <button class="icon-btn grn" onclick="openCreate()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Neu anlegen</button>
-    <button class="icon-btn" onclick="exportXlsx()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Excel</button>`: '';
-        }
-        function showRaw(txt, url) { setRH('rtag-load', 'Raw', url, false); g('rbody').innerHTML = '<pre class="raw-out">' + esc(txt) + '</pre>'; }
-        function showErr(lbl, d, url) { setRH('rtag-err', lbl, url, false); g('rbody').innerHTML = '<pre class="raw-out" style="color:var(--red)">' + esc(d) + '</pre>'; }
+            if (rows && rows.length > 0) {
+                const cols  = Object.keys(rows[0]).filter(k => k !== '__metadata');
+                const thead = '<tr>' + cols.map(c => '<th>' + esc(c) + '</th>').join('') + '</tr>';
+                const tbody = rows.map(r =>
+                    '<tr>' + cols.map(c => '<td title="' + esc(str(r[c])) + '">' + esc(str(r[c])) + '</td>').join('') + '</tr>'
+                ).join('');
 
-        /* ═══ EXCEL ═══ */
-        function exportXlsx() {
-            if (!rows.length) { toast('Keine Daten', 'err'); return; }
-            const data = rows.map(r => { const o = {}; cols.forEach(c => { o[c] = str(r[c]); }); return o; });
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, curEnt || 'Daten');
-            const mw = cols.map(c => Math.min(40, Math.max(c.length, ...data.map(r => str(r[c]).length))));
-            ws['!cols'] = mw.map(w => ({ wch: w + 2 }));
-            const fn = (curEnt || 'export') + '_' + new Date().toISOString().slice(0, 10) + '.xlsx';
-            XLSX.writeFile(wb, fn);
-            toast('Excel gespeichert: ' + fn, 'ok');
-        }
-
-        /* ═══ CRUD ═══ */
-        function eUri(row) {
-            if (row.__metadata?.uri) { const b = baseUrl(); return row.__metadata.uri.replace(/^https?:\/\/[^/]+/, b); }
-            return null;
-        }
-
-        function openCreate() {
-            if (!cols.length) { toast('Erst GET ausführen', 'err'); return; }
-            const html = cols.map(c => `<div class="mfield"><label>${esc(c)}</label><input id="mf_${esc(c)}" value=""/></div>`).join('');
-            openModal('Neuen Datensatz anlegen', html,
-                `<button class="fbtn fbtn-g" onclick="closeModal()">Abbrechen</button>
-     <button class="fbtn fbtn-p" onclick="doCreate()">Anlegen</button>`);
-        }
-        async function doCreate() {
-            const payload = {}; cols.forEach(c => { const el = g('mf_' + c); if (el) payload[c] = el.value; });
-            const url = baseUrl() + '/sap/opu/odata/sap/' + curSvc + '/' + curEnt + '?$format=json' + authP(true);
-            await ensureCsrf();
-            try {
-                const res = await fetch(url, { method: 'POST', headers: writeHdrs(), body: JSON.stringify(payload) });
-                if (res.ok || res.status === 201) { toast('Angelegt ✓', 'ok'); closeModal(); runQuery(); }
-                else { const t = await res.text(); toast('Fehler ' + res.status + ': ' + t.slice(0, 120), 'err'); }
-            } catch (e) { toast(e.message, 'err'); }
-        }
-
-        function openEdit(i) {
-            const row = rows[i], uri = eUri(row);
-            if (!uri) { toast('Kein __metadata.uri — PATCH nicht möglich', 'err'); return; }
-            const km = uri.match(/\(([^)]+)\)$/);
-            const keys = new Set();
-            if (km) km[1].split(',').forEach(kv => { const n = kv.split('=')[0].trim(); if (n) keys.add(n); });
-            const html = cols.map(c => {
-                const isK = keys.has(c);
-                return `<div class="mfield"><label>${esc(c)}${isK ? '<span class="kbadge">KEY</span>' : ''}</label>
-    <input id="mf_${esc(c)}" value="${esc(str(row[c]))}" ${isK ? 'disabled' : ''}></div>`;
-            }).join('');
-            openModal('Datensatz bearbeiten', html,
-                `<button class="fbtn fbtn-g" onclick="closeModal()">Abbrechen</button>
-     <button class="fbtn fbtn-p" onclick="doPatch(${i})">Speichern</button>`);
-        }
-        async function doPatch(i) {
-            const row = rows[i], uri = eUri(row); if (!uri) return;
-            const km = uri.match(/\(([^)]+)\)$/); const keys = new Set();
-            if (km) km[1].split(',').forEach(kv => { const n = kv.split('=')[0].trim(); if (n) keys.add(n); });
-            const payload = {};
-            cols.forEach(c => { if (keys.has(c)) return; const el = g('mf_' + c); if (el && !el.disabled) payload[c] = el.value; });
-            const url = uri + '?$format=json' + authP(true);
-            await ensureCsrf();
-            try {
-                const res = await fetch(url, { method: 'PATCH', headers: writeHdrs(), body: JSON.stringify(payload) });
-                if (res.ok || res.status === 204) { toast('Gespeichert ✓', 'ok'); closeModal(); runQuery(); }
-                else { const t = await res.text(); toast('Fehler ' + res.status + ': ' + t.slice(0, 120), 'err'); }
-            } catch (e) { toast(e.message, 'err'); }
-        }
-
-        function confirmDel(i) {
-            const row = rows[i], uri = eUri(row);
-            if (!uri) { toast('Kein __metadata.uri — DELETE nicht möglich', 'err'); return; }
-            const km = uri.match(/\(([^)]+)\)$/);
-            const ki = km ? km[1] : '?';
-            openModal('Datensatz löschen',
-                `<div style="font-size:14px;line-height:1.6">Datensatz wirklich löschen?<br>
-     <code style="font-family:monospace;font-size:12px;color:var(--red)">${esc(ki)}</code></div>`,
-                `<button class="fbtn fbtn-g" onclick="closeModal()">Abbrechen</button>
-     <button class="fbtn fbtn-r" onclick="doDel(${i})">Löschen</button>`);
-        }
-        async function doDel(i) {
-            const row = rows[i], uri = eUri(row); if (!uri) return;
-            const url = uri + '?' + authP();
-            await ensureCsrf();
-            try {
-                const res = await fetch(url, { method: 'DELETE', headers: writeHdrs() });
-                if (res.ok || res.status === 204) { toast('Gelöscht ✓', 'ok'); closeModal(); runQuery(); }
-                else { const t = await res.text(); toast('Fehler ' + res.status + ': ' + t.slice(0, 120), 'err'); }
-            } catch (e) { toast(e.message, 'err'); }
-        }
-
-        /* ═══ MODAL ═══ */
-        function openModal(title, body, foot) { g('mtitle').textContent = title; g('mbody').innerHTML = body; g('mfoot').innerHTML = foot; g('overlay').classList.add('open'); }
-        function closeModal() { g('overlay').classList.remove('open'); }
-        g('overlay').addEventListener('click', e => { if (e.target === g('overlay')) closeModal(); });
-
-        /* ═══ AGENT ═══ */
-        const chatArea = g('chatArea'), chatInput = g('chatInput'), sendBtn = g('sendBtn');
-        let busy = false;
-        chatInput.addEventListener('input', () => { chatInput.style.height = 'auto'; chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px'; });
-        chatInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
-        sendBtn.addEventListener('click', handleSend);
-        function chip(t) { chatInput.value = t; sw('A'); handleSend(); }
-
-        async function handleSend() {
-            const text = chatInput.value.trim();
-            if (!text || busy) return;
-            if (!cfg.aiKey) { addSM('OpenAI API Key fehlt.', 'warn'); return; }
-            if (!cfg.host && !cfg.proxy) { addSM('SAP Host fehlt.', 'warn'); return; }
-            g('welcomeMsg').style.display = 'none';
-            addUM(text); chatInput.value = ''; chatInput.style.height = 'auto';
-            busy = true; sendBtn.disabled = true;
-            const ty = addTyp();
-            try {
-                const call = await callAI(text); ty.remove();
-                const method = (call.method || 'GET').toUpperCase();
-                const entity = call.entity || '';
-                const filter = call.filter || '';
-                const data = Array.isArray(call.data) ? call.data : [];
-                addBM('<div style="margin-bottom:8px;font-size:12px;color:var(--t2)">OData Call erkannt:</div>'
-                    + '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">'
-                    + '<span class="atag atag-info">' + esc(entity || '?') + '</span>'
-                    + '<span class="atag atag-warn">' + method + '</span>'
-                    + (data.length ? '<span class="atag atag-info">' + data.length + ' Datensätze</span>' : '')
-                    + (filter ? '<span class="atag atag-info">' + esc(filter) + '</span>' : '')
-                    + '</div>'
-                    + '<div class="code-block"><div class="code-top"><span class="code-lbl">Payload</span>'
-                    + '<button class="copy-btn" onclick="doCopy(this)">Kopieren</button></div>'
-                    + '<div>' + esc(JSON.stringify(call, null, 2)) + '</div></div>');
-                if (!entity) { addSM('Kein OData Service erkannt.', 'warn'); }
-                else {
-                    let ep = entity;
-                    if (method === 'GET' && filter) ep += (ep.includes('?') ? '&' : '?') + '$filter=' + enc(filter);
-                    const sep2 = ep.includes('?') ? '&' : '?';
-                    const url = baseUrl() + '/sap/opu/odata/sap/' + ep + sep2 + '$format=json' + authP(true);
-                    if (method === 'GET') {
-                        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-                        const txt = await res.text();
-                        if (!res.ok) { addBM('<span class="atag atag-err">❌ HTTP ' + res.status + '</span> ' + esc(txt.slice(0, 200))); }
-                        else { try { addBM(renderAg(JSON.parse(txt))); } catch { addBM('<pre class="code-block">' + esc(txt.slice(0, 500)) + '</pre>'); } }
-                    } else {
-                        await ensureCsrf();
-                        for (const rec of data) {
-                            const res = await fetch(url, { method, headers: writeHdrs(), body: JSON.stringify(rec) });
-                            const txt = await res.text();
-                            if (res.ok || res.status === 201 || res.status === 204) { addBM('<span class="atag atag-ok">✓ ' + method + ' erfolgreich</span>'); }
-                            else { addBM('<span class="atag atag-err">❌ HTTP ' + res.status + '</span> ' + esc(txt.slice(0, 200))); }
-                        }
-                        if (!data.length) {
-                            const res = await fetch(url, { method, headers: writeHdrs() });
-                            addBM(res.ok || res.status === 204 ? '<span class="atag atag-ok">✓ ' + method + ' erfolgreich</span>' : '<span class="atag atag-err">❌ HTTP ' + res.status + '</span>');
-                        }
-                    }
-                }
-            } catch (e) { ty.remove(); addBM('<span class="atag atag-err">❌ Fehler</span> ' + esc(e.message)); }
-            busy = false; sendBtn.disabled = false; scrollDn();
-        }
-
-        async function callAI(userText) {
-            const res = await fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.aiKey },
-                body: JSON.stringify({
-                    model: cfg.model,
-                    messages: [
-                        {
-                            role: 'system', content: 'Du bist SAP OData Experte. Antworte IMMER nur mit Funktionsaufruf sap_odata_call. '
-                                + 'Bei GET: data=[]. Bei POST/PATCH: data=Array. '
-                                + 'FX Exposure: FXExposureType,CompanyCode,Portfolio,FXExposureValidFromDate(YYYY-MM-DD),FXExposureDueDate,FXExposureAmountInRiskCurrency,FXExposureRiskCurrency,FXExposureTargetCurrency,FXExposureDirection(1=Inflow,2=Outflow),FXExposureExternalID. '
-                                + 'TRM Trades: CompanyCode,PartnerPortfolio,TransType,Product,CurrPair,Amount1,Amount2,ValueDate,MaturityDate,CounterParty. '
-                                + 'Position Flows: A_TRSYPOSFLOW_CDS/A_TrsyPosFlow. FX Exposure Service: API_FOREIGNEXCHANGEEXPOSURE_SRV/ForeignExchangeExposure.'
-                        },
-                        { role: 'user', content: userText }
-                    ],
-                    tools: [{
-                        type: 'function', function: {
-                            name: 'sap_odata_call', description: 'SAP OData aufrufen', parameters: {
-                                type: 'object',
-                                properties: {
-                                    entity: { type: 'string' }, method: { type: 'string', enum: ['GET', 'POST', 'PATCH', 'DELETE'] },
-                                    filter: { type: 'string' }, data: { type: 'array', items: { type: 'object' } }
-                                }, required: ['entity', 'method', 'data']
-                            }
-                        }
-                    }],
-                    tool_choice: { type: 'function', function: { name: 'sap_odata_call' } }
-                })
-            });
-            if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e?.error?.message || 'OpenAI HTTP ' + res.status); }
-            const json = await res.json();
-            const msg = json.choices[0].message;
-            if (msg.tool_calls && msg.tool_calls.length) return JSON.parse(msg.tool_calls[0].function.arguments);
-            throw new Error('Kein Funktionsaufruf erhalten.');
-        }
-
-        function renderAg(json) {
-            let r = null;
-            if (Array.isArray(json?.d?.results)) r = json.d.results;
-            else if (Array.isArray(json?.value)) r = json.value;
-            else if (json?.d && typeof json.d === 'object') r = [json.d];
-            if (r && r.length) {
-                const cs = Object.keys(r[0]).filter(k => k !== '__metadata');
-                const h = '<tr>' + cs.map(c => '<th>' + esc(c) + '</th>').join('') + '</tr>';
-                const b = r.map(row => '<tr>' + cs.map(c => '<td title="' + esc(str(row[c])) + '">' + esc(str(row[c])) + '</td>').join('') + '</tr>').join('');
-                return '<span class="atag atag-ok">✓ ' + r.length + ' Datensatz' + (r.length !== 1 ? 'e' : '') + '</span>'
-                    + '<div class="agent-tbl"><table><thead>' + h + '</thead><tbody>' + b + '</tbody></table></div>';
+                document.getElementById('resultTag').className   = 'tag tag-ok';
+                document.getElementById('resultTag').textContent = rows.length + ' Datensatz' + (rows.length !== 1 ? 'e' : '');
+                document.getElementById('resultUrl').textContent = url;
+                document.getElementById('resultBody').innerHTML  =
+                    '<div class="tbl-wrap"><table><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table></div>';
+            } else {
+                showRaw(JSON.stringify(json, null, 2), url);
             }
-            return '<span class="atag atag-ok">✓ Response</span>'
-                + '<div class="code-block"><div class="code-top"><span class="code-lbl">API Response</span>'
-                + '<button class="copy-btn" onclick="doCopy(this)">Kopieren</button></div>'
-                + '<div>' + esc(JSON.stringify(json, null, 2)) + '</div></div>';
         }
 
-        /* ═══ UI HELPERS ═══ */
-        function addUM(t) { const el = mk('div', 'msg user'); el.innerHTML = '<div class="av u">L</div><div class="bubble">' + esc(t) + '</div>'; chatArea.appendChild(el); scrollDn(); }
-        function addBM(html) { const el = mk('div', 'msg bot'); el.innerHTML = '<div class="av b">⚡</div><div class="bubble">' + html + '</div>'; chatArea.appendChild(el); scrollDn(); return el; }
-        function addSM(html, type) { const m = { ok: 'atag-ok', err: 'atag-err', info: 'atag-info', warn: 'atag-warn' }; const l = { ok: 'OK', err: 'FEHLER', info: 'INFO', warn: 'HINWEIS' }; g('welcomeMsg').style.display = 'none'; return addBM('<span class="atag ' + (m[type] || 'atag-info') + '">' + (l[type] || type) + '</span> ' + html); }
-        function addTyp() { const el = mk('div', 'msg bot'); el.innerHTML = '<div class="av b">⚡</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>'; chatArea.appendChild(el); scrollDn(); return el; }
-        function mk(tag, cls) { const el = document.createElement(tag); el.className = cls; return el; }
-        function setDot(d, l, s, lbl) { g(d).className = 'dot' + (s ? ' ' + s : ''); g(l).textContent = lbl; }
-        function scrollDn() { chatArea.scrollTop = chatArea.scrollHeight; }
-        function dedup(a) { const s = new Set(); return a.filter(q => { const k = q.trim(); if (s.has(k)) return false; s.add(k); return true; }); }
+        function showRaw(text, url) {
+            document.getElementById('resultTag').className   = 'tag tag-info';
+            document.getElementById('resultTag').textContent = 'Raw Response';
+            document.getElementById('resultUrl').textContent = url;
+            document.getElementById('resultBody').innerHTML  =
+                '<pre class="raw-out">' + esc(text) + '</pre>';
+            document.getElementById('resultPanel').style.display = 'block';
+        }
+
+        function showError(label, detail, url) {
+            document.getElementById('resultTag').className   = 'tag tag-err';
+            document.getElementById('resultTag').textContent = label;
+            document.getElementById('resultUrl').textContent = url;
+            document.getElementById('resultBody').innerHTML  =
+                '<pre class="raw-out" style="color:#FF6B6B">' + esc(detail) + '</pre>';
+            document.getElementById('resultPanel').style.display = 'block';
+        }
+
+        /* ─── HELPERS ─── */
+        function setDot(state, label) {
+            document.getElementById('connDot').className  = 'dot' + (state ? ' ' + state : '');
+            document.getElementById('connLbl').textContent = label;
+        }
+
+        /* ── FIX: Deduplizierung beim Laden ── */
+        function dedup(arr) {
+            const seen = new Set();
+            return arr.filter(q => {
+                const k = q.trim();
+                if (seen.has(k)) return false;
+                seen.add(k);
+                return true;
+            });
+        }
+
         function str(v) { return v == null ? '' : String(v); }
-        function enc(v) { return encodeURIComponent(v); }
-        function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-        function doCopy(btn) { const c = btn.closest('.code-block').querySelector('div:last-child'); navigator.clipboard.writeText(c.textContent).then(() => { btn.textContent = '✓ Kopiert'; setTimeout(() => btn.textContent = 'Kopieren', 1500); }); }
-        function toast(msg, type = 'info') { const c = g('toasts'); const el = document.createElement('div'); el.className = 'toast toast-' + type; el.textContent = msg; c.appendChild(el); setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 350); }, 3000); }
-        function writeHdrs() { return { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-Token': csrfTok || '' }; }
+
+        function esc(s) {
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
     </script>
 </body>
 
